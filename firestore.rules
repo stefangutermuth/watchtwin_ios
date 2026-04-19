@@ -1,0 +1,95 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helfer ────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isMe(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    // Vergleicht request vs resource für ein bestimmtes Feld — beide müssen gleich sein
+    function unchanged(field) {
+      return request.resource.data[field] == resource.data[field];
+    }
+
+    // ─── Users ─────────────────────────────────────────────────
+    // Profil-Daten: Jeder eingeloggte User darf lesen (für Friend-Code-Suche
+    // und Freund-Profil-Anzeige). Nur der User selbst darf schreiben.
+    //
+    // KNOWN-LIMITATION V1: Auch Watchlist/skippedIds sind hier gespeichert
+    // und für alle eingeloggte User lesbar. Kein kritisches Datenleck (nur
+    // "welche Filme hat wer gemerkt"), aber suboptimal. Zukünftig in
+    // Subcollection `users/{uid}/private` verschieben.
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create, update: if isMe(uid);
+      allow delete: if isMe(uid);
+
+      // Subcollections: jeder Freund darf lesen, nur eigener User schreiben
+      match /{subcollection=**} {
+        allow read: if isSignedIn();
+        allow write: if isMe(uid);
+      }
+    }
+
+    // ─── Friendships ───────────────────────────────────────────
+    // Ein Friendship-Dokument hat:
+    // { users: [uidA, uidB], status: 'pending'|'accepted', requestedBy: uid, createdAt: ts }
+    match /friendships/{friendshipId} {
+      // Nur die beiden Beteiligten dürfen lesen
+      allow read: if isSignedIn() && request.auth.uid in resource.data.users;
+
+      // Create strikt:
+      // - request.auth.uid muss in users stehen
+      // - requestedBy muss request.auth.uid sein (man kann nur für sich selbst anfragen)
+      // - status muss initial "pending" sein (keine selbst-akzeptierten Freundschaften)
+      // - users muss genau 2 Einträge haben, ungleich
+      allow create: if isSignedIn()
+                    && request.auth.uid in request.resource.data.users
+                    && request.resource.data.requestedBy == request.auth.uid
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.users.size() == 2
+                    && request.resource.data.users[0] != request.resource.data.users[1];
+
+      // Update: nur beteiligte dürfen, und users/requestedBy/createdAt
+      // dürfen NICHT geändert werden (sonst kann man Dokumente übernehmen)
+      allow update: if isSignedIn()
+                    && request.auth.uid in resource.data.users
+                    && unchanged('users')
+                    && unchanged('requestedBy')
+                    && unchanged('createdAt');
+
+      // Delete: beide Parteien dürfen beenden
+      allow delete: if isSignedIn() && request.auth.uid in resource.data.users;
+    }
+
+    // ─── Swipe-Parties ─────────────────────────────────────────
+    // Ein Party-Dokument hat:
+    // { hostUid, hostName, guestUid, guestName, status, movies, swipes, createdAt }
+    match /parties/{partyId} {
+      // Nur Host + Guest dürfen lesen
+      allow read: if isSignedIn()
+                  && (request.auth.uid == resource.data.hostUid
+                      || request.auth.uid == resource.data.guestUid);
+
+      // Create: nur Host kann anlegen, initialer Status "waiting"
+      allow create: if isSignedIn()
+                    && request.auth.uid == request.resource.data.hostUid
+                    && request.resource.data.hostUid != request.resource.data.guestUid
+                    && request.resource.data.status == 'waiting';
+
+      // Update: Host + Guest dürfen, aber hostUid/guestUid sind unveränderlich
+      allow update: if isSignedIn()
+                    && (request.auth.uid == resource.data.hostUid
+                        || request.auth.uid == resource.data.guestUid)
+                    && unchanged('hostUid')
+                    && unchanged('guestUid');
+
+      // Delete: nur Host
+      allow delete: if isSignedIn() && request.auth.uid == resource.data.hostUid;
+    }
+  }
+}

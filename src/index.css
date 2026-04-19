@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  /* WatchTwin Brand Colors */
+  --color-wt-dark: #0e0c1d;
+  --color-wt-card: #1a1730;
+  --color-wt-surface: #242040;
+  --color-wt-purple: #2a00a7;
+  --color-wt-pink: #f11885;
+  --color-wt-purple-light: #4a2dd4;
+  --color-wt-purple-lighter: #e51578;
+  --color-wt-pink-light: #f74da5;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background-color: #0e0c1d;
+  /* Verhindert Root-Scroll. Einzelne Content-Bereiche scrollen weiter
+     über overflow-y-auto in ihren eigenen Containern. */
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS: Verhindert Auto-Zoom auf Input-Fokus (Schriftgröße < 16px triggert Zoom) */
+input, textarea, select {
+  font-size: 16px;
+}
+
+/* iOS: Verhindert manuelles Zoomen per Geste */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
