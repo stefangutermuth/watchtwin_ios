@@ -19,7 +19,13 @@ const config: CapacitorConfig = {
       appIdIos: 'ca-app-pub-5931519454513162~5638409484',
     },
     FirebaseAuthentication: {
-      skipNativeAuth: false,
+      // skipNativeAuth:true — der Plugin ruft KEIN Auth.auth().signIn() nativ
+      // auf. Stattdessen gibt er nur den rohen idToken + rawNonce zurück, und
+      // das Firebase JS SDK erledigt das eigentliche signInWithCredential().
+      // Hintergrund: Bei Apple Sign-In verbraucht der native SDK sonst den
+      // idToken (inkl. sha256-nonce), der anschließende JS-Call schlägt mit
+      // "auth/missing-or-invalid-nonce" fehl. (App-Store-Review 2.1.0, 2026-04)
+      skipNativeAuth: true,
       providers: ['google.com', 'apple.com'],
     },
     Keyboard: {

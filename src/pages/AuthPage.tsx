@@ -9,21 +9,52 @@ type AuthMode = 'login' | 'register';
 
 const firebaseErrorMessages: Record<string, string> = {
   'auth/email-already-in-use': 'Diese E-Mail ist bereits registriert.',
-  'auth/invalid-email': 'Ungueltige E-Mail-Adresse.',
+  'auth/invalid-email': 'Ungültige E-Mail-Adresse.',
   'auth/weak-password': 'Passwort muss mindestens 6 Zeichen haben.',
   'auth/user-not-found': 'Kein Konto mit dieser E-Mail gefunden.',
   'auth/wrong-password': 'Falsches Passwort.',
   'auth/invalid-credential': 'E-Mail oder Passwort ist falsch.',
   'auth/too-many-requests': 'Zu viele Versuche. Bitte warte kurz.',
   'auth/popup-closed-by-user': 'Anmeldung abgebrochen.',
-  'auth/network-request-failed': 'Netzwerkfehler. Pruefe deine Verbindung.',
+  'auth/network-request-failed': 'Netzwerkfehler. Prüfe deine Verbindung.',
+  'auth/missing-or-invalid-nonce':
+    'Anmeldung fehlgeschlagen. Bitte versuche es erneut.',
+  'auth/operation-not-allowed':
+    'Diese Anmeldemethode ist aktuell nicht verfügbar.',
+  'auth/account-exists-with-different-credential':
+    'Dieses Konto existiert bereits mit einer anderen Anmeldemethode.',
 };
+
+/** Wurde der Social-Login vom User abgebrochen? (iOS Apple = 1001, Capacitor = "12501" etc.) */
+export function isUserCancelled(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const err = error as Record<string, unknown>;
+  const code = err.code;
+  const message = typeof err.message === 'string' ? err.message.toLowerCase() : '';
+  if (typeof code === 'number' && code === 1001) return true;
+  if (typeof code === 'string') {
+    if (code === '1001') return true;
+    if (code === '12501') return true; // Android Google cancel
+    if (code === 'ERR_CANCELED') return true;
+    if (code === 'auth/popup-closed-by-user') return true;
+    if (code === 'auth/cancelled-popup-request') return true;
+    if (code === 'auth/user-cancelled') return true;
+  }
+  return (
+    message.includes('canceled') ||
+    message.includes('cancelled') ||
+    message.includes('abgebrochen')
+  );
+}
 
 function getErrorMessage(error: unknown): string {
   if (error && typeof error === 'object') {
     const err = error as Record<string, unknown>;
     if (err.code && typeof err.code === 'string') {
-      return firebaseErrorMessages[err.code] || `Fehler: ${err.code}`;
+      if (firebaseErrorMessages[err.code]) return firebaseErrorMessages[err.code];
+      // Unbekannter Code: generische, benutzerfreundliche Fehlermeldung.
+      // Interner Code landet im console.error-Log (siehe handleApple/Google).
+      return 'Anmeldung fehlgeschlagen. Bitte versuche es erneut.';
     }
     if (err.message && typeof err.message === 'string') {
       return err.message;
@@ -32,7 +63,7 @@ function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
   }
-  return String(error) || 'Ein unbekannter Fehler ist aufgetreten.';
+  return 'Anmeldung fehlgeschlagen. Bitte versuche es erneut.';
 }
 
 export function AuthPage() {
@@ -94,6 +125,7 @@ export function AuthPage() {
       navigate('/swipe', { replace: true });
     } catch (err: any) {
       console.error('[Auth] Google Login Fehler:', err?.code, err?.message);
+      if (isUserCancelled(err)) return; // Abbruch durch User → stiller Abbruch
       setError(getErrorMessage(err));
     }
   }
@@ -103,7 +135,9 @@ export function AuthPage() {
     try {
       await signInWithApple();
       navigate('/swipe', { replace: true });
-    } catch (err) {
+    } catch (err: any) {
+      console.error('[Auth] Apple Login Fehler:', err?.code, err?.message, err);
+      if (isUserCancelled(err)) return; // Abbruch durch User → stiller Abbruch
       setError(getErrorMessage(err));
     }
   }

@@ -71,10 +71,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signInWithGoogle() {
     if (Capacitor.isNativePlatform()) {
-      // Native: use Capacitor Firebase Auth plugin
+      // Native: use Capacitor Firebase Auth plugin with skipNativeAuth so the
+      // Firebase JS SDK performs the actual sign-in (onAuthStateChanged fires).
       console.log('[Auth] Starting native Google Sign-In...');
-      const result = await FirebaseAuthentication.signInWithGoogle();
-      console.log('[Auth] Google result:', JSON.stringify(result));
+      const result = await FirebaseAuthentication.signInWithGoogle({
+        skipNativeAuth: true,
+      });
+      console.log('[Auth] Google result. hasIdToken=', !!result.credential?.idToken);
       const idToken = result.credential?.idToken;
       if (!idToken) throw new Error('Google Sign-In: Kein Token erhalten. Bitte erneut versuchen.');
       const credential = GoogleAuthProvider.credential(idToken);
@@ -88,16 +91,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signInWithApple() {
     if (Capacitor.isNativePlatform()) {
-      // Native: use Capacitor Firebase Auth plugin
+      // Native: use Capacitor Firebase Auth plugin with skipNativeAuth:true.
+      // Without this, the plugin internally calls Auth.auth().signIn(with:) on
+      // the native Firebase SDK which consumes the Apple idToken. A second call
+      // to signInWithCredential() from the JS SDK then fails with
+      // auth/missing-or-invalid-nonce because the token is already used.
+      // With skipNativeAuth:true the plugin just returns the raw credential
+      // (idToken + raw nonce) so the JS SDK does the actual sign-in.
       console.log('[Auth] Starting native Apple Sign-In...');
-      const result = await FirebaseAuthentication.signInWithApple();
-      console.log('[Auth] Apple result:', JSON.stringify(result));
+      let result;
+      try {
+        result = await FirebaseAuthentication.signInWithApple({
+          skipNativeAuth: true,
+        });
+      } catch (pluginErr: any) {
+        console.error('[Auth] Apple plugin step failed:', pluginErr?.code, pluginErr?.message, pluginErr);
+        throw pluginErr;
+      }
+      console.log('[Auth] Apple result received. hasCredential=', !!result.credential, 'hasIdToken=', !!result.credential?.idToken, 'hasNonce=', !!result.credential?.nonce);
       const idToken = result.credential?.idToken;
       const nonce = result.credential?.nonce;
-      if (!idToken) throw new Error('Apple Sign-In: Kein Token erhalten. Bitte erneut versuchen.');
-      const provider = new OAuthProvider('apple.com');
-      const credential = provider.credential({ idToken, rawNonce: nonce });
-      await signInWithCredential(auth, credential);
+      if (!idToken) {
+        console.error('[Auth] Apple Sign-In: Missing idToken in plugin result', result);
+        throw new Error('Apple Sign-In: Kein Token erhalten. Bitte erneut versuchen.');
+      }
+      try {
+        const provider = new OAuthProvider('apple.com');
+        const credential = provider.credential({ idToken, rawNonce: nonce });
+        await signInWithCredential(auth, credential);
+      } catch (fbErr: any) {
+        console.error('[Auth] Apple Firebase credential step failed:', fbErr?.code, fbErr?.message, fbErr);
+        throw fbErr;
+      }
     } else {
       // Web: use popup
       await signInWithPopup(auth, appleProvider);
