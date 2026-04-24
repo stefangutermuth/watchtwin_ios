@@ -14,9 +14,16 @@ const config: CapacitorConfig = {
     // 'automatic' würde zusätzlich die ScrollView-Insets setzen → doppelte Safe-Area-Padding.
     contentInset: 'never',
   },
+  android: {
+    // Edge-to-edge: Android zeichnet unter Status-/Navigation-Bar, CSS env(safe-area-inset-*)
+    // übernimmt das Padding analog zu iOS (viewport-fit=cover ist bereits in index.html gesetzt).
+    adjustMarginsForEdgeToEdge: 'force',
+  },
   plugins: {
     AdMob: {
       appIdIos: 'ca-app-pub-5931519454513162~5638409484',
+      // TODO: AdMob Android-App-ID in der AdMob-Konsole erstellen und hier eintragen.
+      // appIdAndroid: 'ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY',
     },
     FirebaseAuthentication: {
       // skipNativeAuth:true — der Plugin ruft KEIN Auth.auth().signIn() nativ

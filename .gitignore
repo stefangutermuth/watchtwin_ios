@@ -47,7 +47,17 @@ ios/App/DerivedData/
 *.cer
 
 # Capacitor
-android/
+android/app/src/main/assets/public/
+android/app/build/
+android/build/
+android/.gradle/
+android/captures/
+android/local.properties
+android/app/release/
+android/app/debug/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/google-services.json
 .capacitor/
 
 # Claude / AI local files
