@@ -56,8 +56,11 @@ android/app/google-services.json
 android/.gradle/
 android/app/build/
 android/build/
+android/key.properties
 *.apk
 *.aab
+*.keystore
+*.jks
 
 # Claude / AI local files
 .claude/
