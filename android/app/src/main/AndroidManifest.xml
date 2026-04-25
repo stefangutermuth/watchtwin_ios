@@ -24,10 +24,10 @@
 
         </activity>
 
-        <!-- AdMob App ID (Android) — TODO: echte App-ID aus AdMob-Dashboard eintragen -->
+        <!-- AdMob App ID (Android) -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5931519454513162~XXXXXXXXXX"/>
+            android:value="ca-app-pub-5931519454513162~4164223869"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -4,7 +4,7 @@ import type { CustomerInfo } from '@revenuecat/purchases-capacitor';
 
 // RevenueCat API Keys
 const REVENUECAT_API_KEY_IOS = 'appl_MqmubChMyoImiwmswwRsulTnBjQ';
-const REVENUECAT_API_KEY_ANDROID = 'test_e0lRoyPcwMtZIugJUUjVRViv0Qg'; // Android Key kommt später
+const REVENUECAT_API_KEY_ANDROID = 'goog_ULNaetstPhYsmARpbJCSauJKHSD';
 
 // Entitlement-ID — muss mit RevenueCat Dashboard übereinstimmen
 const PREMIUM_ENTITLEMENT_ID = 'GUMU - Werbeagentur Pro';
