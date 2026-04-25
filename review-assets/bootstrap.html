@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Bootstrap</title></head>
+<body>
+<script>
+  // Pre-set the Zustand persist store so the app skips onboarding
+  const state = {
+    state: {
+      onboardingDone: true,
+      selectedProviders: ['netflix', 'disney-plus'],
+      watchlist: [],
+      seenMovies: [],
+      preferredGenres: [],
+      originalLanguages: [],
+    },
+    version: 0
+  };
+  localStorage.setItem('watchtwin-storage', JSON.stringify(state));
+  location.replace('/profile');
+</script>
+</body>
+</html>

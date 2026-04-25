@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0e0c1d" />
+  <title>WatchTwin — Swipe dich zum perfekten Film</title>
+  <meta name="description" content="WatchTwin ist die Film- und Serien-App mit Swipe-Mechanik. Entscheide in Sekunden, baue deine Watchlist und finde Titel auf deinen Streaming-Diensten." />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="WatchTwin — Swipe dich zum perfekten Film" />
+  <meta property="og:description" content="Kein endloses Scrollen mehr. Swipe, entscheide, schau." />
+  <meta property="og:locale" content="de_DE" />
+  <meta property="og:url" content="https://watchtwin.de" />
+  <meta property="og:image" content="assets/hero-1.png" />
+
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Animated background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+
+  <!-- Navigation -->
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#top" class="nav-logo" aria-label="WatchTwin Startseite">
+        <img src="assets/logo.png" alt="WatchTwin" />
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#overview">Überblick</a>
+        <a href="#features">Features</a>
+        <a href="#reviews">Bewertungen</a>
+        <a href="#download">Download</a>
+      </nav>
+      <a href="#download" class="btn btn-primary btn-sm nav-cta">Jetzt laden</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- HERO -->
+    <section class="hero" id="overview">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <span class="eyebrow">Film- &amp; Serien-App</span>
+          <h1 class="display">
+            Swipe dich zum
+            <span class="gradient-text">perfekten Film.</span>
+          </h1>
+          <p class="lede">
+            Kein endloses Scrollen mehr. WatchTwin zeigt dir personalisierte Vorschläge —
+            du entscheidest mit einem Swipe.
+          </p>
+          <div class="hero-ctas">
+            <a href="#download" class="btn btn-primary btn-lg">
+              <span>Jetzt laden</span>
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M13 5l7 7-7 7v-4H4v-6h9z"/></svg>
+            </a>
+            <a href="#features" class="btn btn-ghost btn-lg">Features ansehen</a>
+          </div>
+          <div class="hero-mini-stats">
+            <div class="mini-stat">
+              <div class="mini-stat-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z" opacity=".25"/><path fill="currentColor" d="M3 3h18v18H3zm2 2v2h2V5zm4 0v2h6V5zm8 0v2h2V5zM5 9v6h14V9zm0 8v2h2v-2zm4 0v2h6v-2zm8 0v2h2v-2z"/></svg>
+              </div>
+              <div class="mini-stat-text">
+                <strong class="stat-number" data-count="15000" data-suffix="+">0</strong>
+                <span>Filme</span>
+              </div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M21 3H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6v2h6v-2h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 14H3V5h18z"/></svg>
+              </div>
+              <div class="mini-stat-text">
+                <strong class="stat-number" data-count="4700" data-suffix="+">0</strong>
+                <span>Serien</span>
+              </div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-icon">
+                <span class="live-dot" aria-hidden="true"></span>
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+              </div>
+              <div class="mini-stat-text">
+                <strong class="stat-number" data-count="9" data-suffix="">0</strong>
+                <span>Dienste</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal">
+          <!-- Animated swipe deck -->
+          <div class="swipe-deck" aria-hidden="true">
+            <div class="swipe-card" style="--i:4">
+              <div class="poster poster-1"></div>
+              <div class="meta"><strong>Inception</strong><em>Sci-Fi · 2010</em></div>
+            </div>
+            <div class="swipe-card" style="--i:3">
+              <div class="poster poster-2"></div>
+              <div class="meta"><strong>The Office</strong><em>Comedy · Serie</em></div>
+            </div>
+            <div class="swipe-card" style="--i:2">
+              <div class="poster poster-3"></div>
+              <div class="meta"><strong>Dune</strong><em>Sci-Fi · 2021</em></div>
+            </div>
+            <div class="swipe-card" style="--i:1">
+              <div class="poster poster-4"></div>
+              <div class="meta"><strong>Interstellar</strong><em>Drama · 2014</em></div>
+            </div>
+            <div class="swipe-card" style="--i:0">
+              <div class="poster poster-5"></div>
+              <div class="meta"><strong>Breaking Bad</strong><em>Krimi · Serie</em></div>
+            </div>
+            <div class="swipe-hint hint-left">✕</div>
+            <div class="swipe-hint hint-right">♥</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROVIDERS MARQUEE -->
+    <section class="providers reveal" aria-label="Unterstützte Streaming-Anbieter">
+      <div class="container">
+        <p class="providers-label">Verfügbar für deine Streaming-Anbieter</p>
+      </div>
+      <div class="marquee">
+        <div class="marquee-track">
+          <div class="provider-logo"><img src="assets/providers/netflix.svg"   alt="Netflix" /></div>
+          <div class="provider-logo"><img src="assets/providers/disney.svg"    alt="Disney+" /></div>
+          <div class="provider-logo"><img src="assets/providers/prime.svg"     alt="Prime Video" /></div>
+          <div class="provider-logo"><img src="assets/providers/apple.svg"     alt="Apple TV+" /></div>
+          <div class="provider-logo"><img src="assets/providers/wow.svg"       alt="WOW" /></div>
+          <div class="provider-logo"><img src="assets/providers/rtl.svg"       alt="RTL+" /></div>
+          <div class="provider-logo"><img src="assets/providers/joyn.svg"      alt="Joyn" /></div>
+          <div class="provider-logo"><img src="assets/providers/magenta.svg"   alt="MagentaTV" /></div>
+          <div class="provider-logo"><img src="assets/providers/paramount.svg" alt="Paramount+" /></div>
+          <!-- duplicate for seamless loop -->
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/netflix.svg"   alt="" /></div>
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/disney.svg"    alt="" /></div>
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/prime.svg"     alt="" /></div>
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/apple.svg"     alt="" /></div>
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/wow.svg"       alt="" /></div>
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/rtl.svg"       alt="" /></div>
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/joyn.svg"      alt="" /></div>
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/magenta.svg"   alt="" /></div>
+          <div class="provider-logo" aria-hidden="true"><img src="assets/providers/paramount.svg" alt="" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Key Features</span>
+          <h2>Alles, was du zum Film-Abend brauchst</h2>
+        </header>
+
+        <div class="feature-grid">
+          <article class="feature-card reveal">
+            <div class="feature-icon icon-swipe">
+              <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M7 7l-4 5 4 5v-3h4V10H7V7zm10 0v3h-4v4h4v3l4-5-4-5z"/></svg>
+            </div>
+            <h3>Swipen</h3>
+            <p>Entscheide in Sekunden: nach rechts für die Watchlist, nach links weiter.</p>
+          </article>
+
+          <article class="feature-card reveal">
+            <div class="feature-icon icon-list">
+              <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
+            </div>
+            <h3>Watchlist</h3>
+            <p>Deine Merkliste, immer griffbereit. Markiere Filme als gesehen.</p>
+          </article>
+
+          <article class="feature-card reveal">
+            <div class="feature-icon icon-tv">
+              <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M3 5h18v12H3zm6 14h6v2H9z"/></svg>
+            </div>
+            <h3>Streaming-Filter</h3>
+            <p>Nur Titel sehen, die auf deinen Diensten verfügbar sind.</p>
+          </article>
+
+          <article class="feature-card reveal">
+            <div class="feature-icon icon-lang">
+              <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm6.9 9h-3.2a15 15 0 0 0-1-5.4A8 8 0 0 1 18.9 11zM12 4a13 13 0 0 1 1.7 7H10.3A13 13 0 0 1 12 4zM5.1 11a8 8 0 0 1 4.2-5.4 15 15 0 0 0-1 5.4zM5.1 13h3.2a15 15 0 0 0 1 5.4A8 8 0 0 1 5.1 13zM12 20a13 13 0 0 1-1.7-7h3.4A13 13 0 0 1 12 20zm2.7-1.6a15 15 0 0 0 1-5.4h3.2a8 8 0 0 1-4.2 5.4z"/></svg>
+            </div>
+            <h3>Sprachfilter</h3>
+            <p>Filme nach Originalsprache filtern — 10 Sprachen verfügbar.</p>
+          </article>
+
+          <article class="feature-card reveal feature-premium">
+            <div class="feature-icon icon-star">
+              <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M12 2l2.9 6.9L22 10l-5.5 4.8L18 22l-6-3.7L6 22l1.5-7.2L2 10l7.1-1.1z"/></svg>
+            </div>
+            <h3>Premium</h3>
+            <p>Keine Werbung, unbegrenzte Watchlist und alle Filter.</p>
+          </article>
+
+          <article class="feature-card reveal">
+            <div class="feature-icon icon-friends">
+              <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-8 0a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-2.7 0-8 1.3-8 4v3h16v-3c0-2.7-5.3-4-8-4zm8 0c-.3 0-.7 0-1 .1 1.3 1 2 2.3 2 3.9v3h7v-3c0-2.7-5.3-4-8-4z"/></svg>
+            </div>
+            <h3>Freunde</h3>
+            <p>Sieh was deine Freunde swipen und findet gemeinsame Matches.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTALL -->
+    <section class="install">
+      <div class="container install-grid">
+        <div class="install-copy reveal">
+          <span class="eyebrow">Los geht's</span>
+          <h2>Einfach installieren.<br/><span class="gradient-text">Sofort losswipen.</span></h2>
+          <p class="lede">
+            Lade WatchTwin aus dem App Store, wähle deine Streaming-Dienste
+            und starte direkt mit dem Swipen.
+          </p>
+          <div class="badges">
+            <a href="https://apps.apple.com/de/app/watchtwin/id6762130189" target="_blank" rel="noopener" class="badge-link" aria-label="Im App Store laden">
+              <img src="assets/appstore-badge.svg" alt="Im App Store laden" />
+            </a>
+            <span class="badge-link badge-link-soon" aria-label="Android-Version bald verfügbar" role="img">
+              <img src="assets/googleplay-badge.svg" alt="Google Play — bald verfügbar" />
+              <span class="soon-tag">Bald</span>
+            </span>
+          </div>
+        </div>
+        <div class="install-phones reveal">
+          <div class="phone phone-a"><img src="assets/hero-1.png" alt="App-Screenshot" /></div>
+          <div class="phone phone-b"><img src="assets/hero-2.png" alt="App-Screenshot" /></div>
+          <div class="phone phone-c"><img src="assets/hero-3.png" alt="App-Screenshot" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Immer frische Vorschläge</span>
+          <h2>Basierend auf <span class="gradient-text">TMDB-Daten</span></h2>
+          <p class="lede">Aktuelle Filme und Serien. Dein Deck wird nie langweilig.</p>
+        </header>
+        <div class="stat-grid">
+          <div class="stat reveal">
+            <div class="stat-number" data-count="15000" data-suffix="+">0</div>
+            <div class="stat-label">Filme</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-number" data-count="4700" data-suffix="+">0</div>
+            <div class="stat-label">Serien</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-number" data-count="9" data-suffix="">0</div>
+            <div class="stat-label">Streaming-Anbieter</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-number" data-count="10" data-suffix="">0</div>
+            <div class="stat-label">Sprachen</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section class="reviews" id="reviews">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Das sagen unsere Nutzer</span>
+          <h2>Überzeug dich selbst</h2>
+          <p class="lede">WatchTwin macht Film-Abende einfacher.</p>
+        </header>
+
+        <!-- NOTE: Die Testimonials von der WP-Seite sind Theme-Platzhalter.
+             Hier durch echte Bewertungen aus dem App Store ersetzen. -->
+        <div class="review-grid">
+          <figure class="review-card reveal">
+            <div class="stars">★★★★★</div>
+            <blockquote>Endlich nicht mehr 20 Minuten nach einem Film suchen. Swipe, fertig, schauen.</blockquote>
+            <figcaption><strong>Maya_87</strong><span>via App Store</span></figcaption>
+          </figure>
+
+          <figure class="review-card reveal">
+            <div class="stars">★★★★★</div>
+            <blockquote>Die Streaming-Filter sind Gold wert. Nur was ich wirklich schauen kann.</blockquote>
+            <figcaption><strong>TomK</strong><span>via App Store</span></figcaption>
+          </figure>
+
+          <figure class="review-card reveal">
+            <div class="stars">★★★★★</div>
+            <blockquote>Super simples Design, macht einfach Spaß. Freue mich auf die Freunde-Funktion.</blockquote>
+            <figcaption><strong>Lena.R</strong><span>via App Store</span></figcaption>
+          </figure>
+
+          <figure class="review-card reveal">
+            <div class="stars">★★★★★</div>
+            <blockquote>Ersetzt bei mir die Netflix-Suche komplett. Top App.</blockquote>
+            <figcaption><strong>Casparticus</strong><span>via App Store</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="cta" id="download">
+      <div class="container">
+        <div class="cta-card reveal">
+          <h2>Worauf wartest du?</h2>
+          <p>Dein nächster Lieblingsfilm wartet. Kostenlos im App Store.</p>
+          <div class="badges">
+            <a href="https://apps.apple.com/de/app/watchtwin/id6762130189" target="_blank" rel="noopener" class="badge-link" aria-label="Im App Store laden">
+              <img src="assets/appstore-badge.svg" alt="Im App Store laden" />
+            </a>
+            <span class="badge-link badge-link-soon" aria-label="Android-Version bald verfügbar" role="img">
+              <img src="assets/googleplay-badge.svg" alt="Google Play — bald verfügbar" />
+              <span class="soon-tag">Bald</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <a href="#top" class="footer-logo">
+        <img src="assets/logo.png" alt="WatchTwin" />
+      </a>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/impressum/">Impressum</a>
+        <a href="/datenschutzerklaerung/">Datenschutzerklärung</a>
+        <a href="/nutzungsbedingungen/">Nutzungsbedingungen</a>
+      </nav>
+      <p class="footer-copy">© <span id="year"></span> WatchTwin. Alle Rechte vorbehalten.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+</body>
+</html>
