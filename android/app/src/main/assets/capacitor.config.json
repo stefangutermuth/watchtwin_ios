@@ -1,0 +1,28 @@
+{
+	"appId": "de.watchtwin.app",
+	"appName": "WatchTwin",
+	"webDir": "dist",
+	"server": {},
+	"ios": {
+		"contentInset": "never"
+	},
+	"android": {
+		"adjustMarginsForEdgeToEdge": "force"
+	},
+	"plugins": {
+		"AdMob": {
+			"appIdIos": "ca-app-pub-5931519454513162~5638409484"
+		},
+		"FirebaseAuthentication": {
+			"skipNativeAuth": true,
+			"providers": [
+				"google.com",
+				"apple.com"
+			]
+		},
+		"Keyboard": {
+			"resize": "none",
+			"style": "dark"
+		}
+	}
+}

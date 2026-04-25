@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/web-Cl9IwtMX.js","assets/dist-CQS6rvaI.js"])))=>i.map(i=>d[i]);
+import{t as e}from"./preload-helper-CREtouNF.js";import{r as t}from"./dist-CQS6rvaI.js";var n=t(`FirebaseCrashlytics`,{web:()=>e(()=>import(`./web-Cl9IwtMX.js`).then(e=>new e.FirebaseCrashlyticsWeb),__vite__mapDeps([0,1]))});export{n as FirebaseCrashlytics};

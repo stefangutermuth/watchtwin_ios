@@ -47,7 +47,10 @@ ios/App/DerivedData/
 *.cer
 
 # Capacitor
-android/app/src/main/assets/public/
+# NOTE: Built web assets (assets/public/, assets/capacitor.*.json) are
+# intentionally tracked so the Android project can be opened and built in
+# Android Studio without running `npm run build && npx cap sync android`
+# locally. CI/devs with Node tooling will overwrite them via `cap sync`.
 android/app/build/
 android/build/
 android/.gradle/
@@ -55,8 +58,6 @@ android/captures/
 android/local.properties
 android/app/release/
 android/app/debug/
-android/app/src/main/assets/capacitor.config.json
-android/app/src/main/assets/capacitor.plugins.json
 android/app/google-services.json
 .capacitor/
 
