@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Movie, WatchlistEntry, SwipeDirection } from '../types';
+import {
+  DEFAULT_NOTIFICATION_SETTINGS,
+  type NotificationSettings,
+} from '../services/localNotifications';
 
 interface SwipeHistoryEntry {
   movie: Movie;
@@ -86,6 +90,15 @@ interface AppState {
   incrementSwipesSinceAd: () => void;
   resetSwipesSinceAd: () => void;
   shouldShowAd: () => boolean;
+
+  // Notifications
+  notificationSettings: NotificationSettings;
+  setNotificationSettings: (settings: Partial<NotificationSettings>) => void;
+
+  // Trending Cache
+  trendingMovies: Movie[];
+  trendingLastFetch: number;
+  setTrendingMovies: (movies: Movie[]) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -267,6 +280,19 @@ export const useStore = create<AppState>()(
         const { isPremium, swipesSinceAd } = get();
         return !isPremium && swipesSinceAd >= 15;
       },
+
+      // Notifications
+      notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
+      setNotificationSettings: (patch) =>
+        set((state) => ({
+          notificationSettings: { ...state.notificationSettings, ...patch },
+        })),
+
+      // Trending Cache (6h)
+      trendingMovies: [],
+      trendingLastFetch: 0,
+      setTrendingMovies: (movies) =>
+        set({ trendingMovies: movies, trendingLastFetch: Date.now() }),
     }),
     {
       name: 'watchtwin-storage',
@@ -279,6 +305,7 @@ export const useStore = create<AppState>()(
         selectedLanguages: state.selectedLanguages,
         selectedGenres: state.selectedGenres,
         isPremium: state.isPremium,
+        notificationSettings: state.notificationSettings,
       }),
     }
   )

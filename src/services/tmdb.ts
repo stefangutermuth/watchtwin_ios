@@ -392,3 +392,104 @@ export async function discoverMovies(
 
   return movies;
 }
+
+/**
+ * TMDB-Trending: Top-Filme + Serien dieser Woche.
+ * Optional gefiltert nach User-Streaming-Providern (Client-Side, da TMDB-Trending
+ * den `with_watch_providers`-Param nicht akzeptiert).
+ *
+ * @param selectedProviderIds  IDs der vom User gewählten Streaming-Anbieter
+ *                              (leer = keine Provider-Filterung)
+ * @param limit  Maximale Anzahl Ergebnisse (default 20)
+ */
+export async function getTrendingThisWeek(
+  selectedProviderIds: string[] = [],
+  limit = 20
+): Promise<Movie[]> {
+  await loadGenres();
+
+  try {
+    const [movieData, tvData] = await Promise.all([
+      fetch(`${BASE_URL}/trending/movie/week?language=${LANGUAGE}`, { headers }).then(
+        (r) => r.json()
+      ),
+      fetch(`${BASE_URL}/trending/tv/week?language=${LANGUAGE}`, { headers }).then(
+        (r) => r.json()
+      ),
+    ]);
+
+    const combined: Array<{ item: TmdbDiscoverResult; type: 'movie' | 'series' }> = [
+      ...(movieData.results ?? []).map((item: TmdbDiscoverResult) => ({
+        item,
+        type: 'movie' as const,
+      })),
+      ...(tvData.results ?? []).map((item: TmdbDiscoverResult) => ({
+        item,
+        type: 'series' as const,
+      })),
+    ];
+
+    // Mit Poster + nach Popularität gewichtet sortieren (vote_average als Tiebreaker)
+    const withPoster = combined
+      .filter((c) => c.item.poster_path)
+      .sort((a, b) => b.item.vote_average - a.item.vote_average)
+      .slice(0, limit + 10); // ein paar mehr fetchen, da Provider-Filter durch sein wird
+
+    // Provider pro Item batch-fetchen (5er Gruppen)
+    const movies: Movie[] = [];
+    const batchSize = 5;
+
+    for (let i = 0; i < withPoster.length; i += batchSize) {
+      const batch = withPoster.slice(i, i + batchSize);
+      const providerResults = await Promise.all(
+        batch.map((c) =>
+          getProviders(c.item.id, c.type === 'movie' ? 'movie' : 'tv')
+        )
+      );
+
+      for (let j = 0; j < batch.length; j++) {
+        const { item, type } = batch[j];
+        const itemProviders = providerResults[j];
+
+        // Wenn User Provider gewählt hat: nur diese matchen lassen.
+        // Wenn nicht: alle Items zulassen (auch ohne Provider — manche Filme sind nur Kino).
+        if (selectedProviderIds.length > 0) {
+          const hasMatch = itemProviders.some((p) =>
+            selectedProviderIds.includes(p)
+          );
+          if (!hasMatch) continue;
+        }
+
+        const genreMap = type === 'movie' ? movieGenres : tvGenres;
+        const year =
+          type === 'movie'
+            ? parseInt(item.release_date?.slice(0, 4) || '0')
+            : parseInt(item.first_air_date?.slice(0, 4) || '0');
+
+        movies.push({
+          id: item.id,
+          title: (type === 'movie' ? item.title : item.name) || 'Unbekannt',
+          originalTitle:
+            type === 'movie' ? item.original_title : item.original_name,
+          type,
+          year,
+          genres: item.genre_ids
+            .map((id) => genreMap[id] || 'Unbekannt')
+            .slice(0, 3),
+          rating: Math.round(item.vote_average * 10) / 10,
+          posterUrl: `${TMDB_IMAGE_BASE}${POSTER_SIZE}${item.poster_path}`,
+          overview: item.overview || 'Keine Beschreibung verfügbar.',
+          providers: itemProviders,
+        });
+
+        if (movies.length >= limit) break;
+      }
+      if (movies.length >= limit) break;
+    }
+
+    return movies;
+  } catch (err) {
+    console.error('[TMDB] Trending fehlgeschlagen:', err);
+    return [];
+  }
+}

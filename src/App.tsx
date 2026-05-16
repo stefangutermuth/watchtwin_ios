@@ -12,6 +12,10 @@ import { loadUserData, debouncedSaveUserData } from './services/firestoreSync';
 import { ensureUserProfile } from './services/friendsService';
 import { initializeAds } from './services/ads';
 import { initializePurchases, checkPremiumStatus } from './services/purchases';
+import {
+  initializeNotifications,
+  scheduleAllReminders,
+} from './services/localNotifications';
 import { FriendsPage } from './pages/FriendsPage';
 import { FriendDetailPage } from './pages/FriendDetailPage';
 import { SwipePartyPage } from './pages/SwipePartyPage';
@@ -64,7 +68,15 @@ function AppContent() {
         if (premium) setPremium(true);
       });
     });
+    initializeNotifications();
   }, [setPremium]);
+
+  // Re-schedule reminders when settings or watchlist count change
+  const notificationSettings = useStore((s) => s.notificationSettings);
+  useEffect(() => {
+    if (!onboardingDone) return; // erst nach Onboarding (Permission)
+    scheduleAllReminders(notificationSettings, watchlist.length);
+  }, [notificationSettings, watchlist.length, onboardingDone]);
 
   // Load data from Firestore on login
   useEffect(() => {
