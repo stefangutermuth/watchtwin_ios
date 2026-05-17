@@ -13,6 +13,14 @@ const config: CapacitorConfig = {
     // Safe-Areas werden via CSS env(safe-area-inset-*) + viewport-fit=cover gehandlet.
     // 'automatic' würde zusätzlich die ScrollView-Insets setzen → doppelte Safe-Area-Padding.
     contentInset: 'never',
+    // App-Version im User-Agent → WebView betrachtet sich als neuer Client
+    // nach jedem App-Update und invalidiert Bundle-Cache.
+    // Vor jedem Release auf die neue Version updaten.
+    // Ergänzt versionCacheBust.ts als zweite Sicherheitslinie.
+    appendUserAgent: 'WatchTwin/1.2',
+  },
+  android: {
+    appendUserAgent: 'WatchTwin/1.2',
   },
   plugins: {
     AdMob: {
