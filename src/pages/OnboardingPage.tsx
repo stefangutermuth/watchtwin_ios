@@ -6,6 +6,7 @@ import { ProviderSelect } from '../components/ProviderSelect';
 import { SwipeTutorial } from '../components/SwipeTutorial';
 import { useStore } from '../store/useStore';
 import { GENRES } from '../data/genres';
+import { requestNotificationPermission } from '../services/localNotifications';
 
 export function OnboardingPage() {
   const navigate = useNavigate();
@@ -15,7 +16,13 @@ export function OnboardingPage() {
   const setOnboardingDone = useStore((s) => s.setOnboardingDone);
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  function handleFinish() {
+  async function handleFinish() {
+    // Permission für Reminder anfragen (skippable — wenn abgelehnt, einfach weiter)
+    try {
+      await requestNotificationPermission();
+    } catch {
+      // ignore – User kann später in Settings aktivieren
+    }
     setOnboardingDone(true);
     navigate('/swipe');
   }

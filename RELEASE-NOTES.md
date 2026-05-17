@@ -1,5 +1,29 @@
 # WatchTwin — App Store Release Notes
 
+## v1.2 (Android versionCode 5, iOS Build 29) — 2026-05-17
+
+**Eingereicht zur Review:** Android (Google Play) ✅, iOS (App Store) ⏳
+
+**Was ist neu:**
+- 🎬 **Neu & Trending-Sektion** auf der SwipePage — frische Filmempfehlungen via TMDB `/trending/{movie,tv}/week`, client-side gefiltert nach den vom User gewählten Streaming-Anbietern, 6h-Cache
+- 🔔 **Lokale Erinnerungen** via `@capacitor/local-notifications`:
+  - Freitag 17:00 — „🍿 Wochenende! Schon entschieden was ihr schaut?"
+  - Sonntag 19:00 — „🎬 Filmabend? Dein nächster Lieblingsfilm wartet."
+  - Montag 18:00 — Watchlist-Reminder (nur wenn > 3 Filme)
+  - Opt-in per Toggle im Profil + Permission-Frage im Onboarding-Step 3
+- 💰 **Premium-Preis 4,99 € → 0,99 €** (3 UI-Strings: AdOverlay, ProfilePage Login-Banner, ProfilePage Aufwertungs-Banner). Preis in Play Console + App Store Connect parallel angepasst.
+- 🤝 **RevenueCat-Setup Android komplett**: Service-Account angelegt, Pub/Sub-Admin-Rolle erteilt, `watchtwin_premium_lifetime` importiert und mit Entitlement „GUMU - Werbeagentur Pro" verknüpft.
+
+**Native-Änderungen:**
+- Android `versionCode 5`, `versionName "1.2"`
+- AndroidManifest: `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`
+  *(SCHEDULE_EXACT_ALARM bewusst weggelassen — Play erlaubt das nur für Wecker/Kalender; wöchentliche Reminder kommen mit inexakten Alarmen aus)*
+- iOS `MARKETING_VERSION 1.2`, `CURRENT_PROJECT_VERSION 29`
+
+---
+
+
+
 ## Test-Account für App Review
 
 Bitte in App Store Connect unter **App Information → App Review Information** eintragen:

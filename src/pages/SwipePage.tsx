@@ -8,6 +8,7 @@ import { MovieDetailModal } from '../components/MovieDetailModal';
 import { AdOverlay } from '../components/AdOverlay';
 import { LoginPrompt } from '../components/LoginPrompt';
 import { SwipeTutorial } from '../components/SwipeTutorial';
+import { TrendingRail } from '../components/TrendingRail';
 import { useStore } from '../store/useStore';
 import { useAuth } from '../contexts/AuthContext';
 import { discoverMovies } from '../services/tmdb';
@@ -194,6 +195,9 @@ export function SwipePage() {
           </button>
         </div>
       </div>
+
+      {/* Neu & Trending Rail */}
+      <TrendingRail />
 
       {/* Swipe area */}
       <div className="relative flex-1 px-4 pb-4">

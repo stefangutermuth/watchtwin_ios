@@ -132,7 +132,7 @@ export function AdOverlay({ visible, onClose, onUpgrade }: AdOverlayProps) {
                 onClick={handleUpgrade}
                 className="mt-4 w-full rounded-xl bg-gradient-to-r from-wt-purple to-wt-pink py-3 text-sm font-bold text-white shadow-lg transition-transform hover:scale-[1.02] active:scale-95"
               >
-                Jetzt freischalten — 4,99 €
+                Jetzt freischalten — 0,99 €
               </button>
             </div>
           </div>

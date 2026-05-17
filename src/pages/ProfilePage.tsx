@@ -27,7 +27,9 @@ import {
   faPen,
   faCamera,
   faSpinner,
+  faBell,
 } from '@fortawesome/free-solid-svg-icons';
+import { requestNotificationPermission } from '../services/localNotifications';
 import { uploadProfilePhoto, updateCustomProfile, getCustomProfile } from '../services/profileService';
 import { trackPremiumPurchase, trackPremiumRestore } from '../services/analytics';
 import { GENRES } from '../data/genres';
@@ -58,6 +60,8 @@ export function ProfilePage() {
   const resetDeck = useStore((s) => s.resetDeck);
   const isPremium = useStore((s) => s.isPremium);
   const setPremium = useStore((s) => s.setPremium);
+  const notificationSettings = useStore((s) => s.notificationSettings);
+  const setNotificationSettings = useStore((s) => s.setNotificationSettings);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -331,7 +335,7 @@ export function ProfilePage() {
               <FontAwesomeIcon icon={faCrown} className="text-2xl text-white" />
               <div>
                 <h3 className="font-bold text-white">Premium freischalten</h3>
-                <p className="text-xs text-white/70">Anmelden und werbefrei swipen — 4,99 €</p>
+                <p className="text-xs text-white/70">Anmelden und werbefrei swipen — 0,99 €</p>
               </div>
             </div>
           </button>
@@ -345,7 +349,7 @@ export function ProfilePage() {
                 <FontAwesomeIcon icon={faCrown} className="text-2xl text-white" />
                 <div>
                   <h3 className="font-bold text-white">Premium freischalten</h3>
-                  <p className="text-xs text-white/70">Keine Werbung, unbegrenzte Watchlist — 4,99 €</p>
+                  <p className="text-xs text-white/70">Keine Werbung, unbegrenzte Watchlist — 0,99 €</p>
                 </div>
               </div>
             </button>
@@ -462,6 +466,62 @@ export function ProfilePage() {
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* Benachrichtigungen */}
+      <div className="mx-4 mt-4 rounded-2xl bg-wt-card p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-wt-pink/15">
+            <FontAwesomeIcon icon={faBell} className="text-wt-pink" />
+          </div>
+          <h2 className="text-base font-semibold text-white">Benachrichtigungen</h2>
+        </div>
+        <p className="mb-3 text-xs text-gray-400">
+          Lass dich erinnern, wenn ein guter Moment zum Swipen ist.
+        </p>
+        <div className="space-y-2">
+          {[
+            {
+              key: 'weekendEnabled' as const,
+              title: '🍿 Wochenend-Reminder',
+              desc: 'Freitag 17:00',
+            },
+            {
+              key: 'sundayEnabled' as const,
+              title: '🎬 Filmabend',
+              desc: 'Sonntag 19:00',
+            },
+            {
+              key: 'watchlistEnabled' as const,
+              title: '💔 Watchlist-Erinnerung',
+              desc: 'Wenn du > 3 Filme auf der Watchlist hast',
+            },
+          ].map((item) => (
+            <label
+              key={item.key}
+              className="flex cursor-pointer items-center justify-between gap-3 rounded-lg bg-wt-surface px-3 py-2.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-white">{item.title}</p>
+                <p className="text-xs text-gray-400">{item.desc}</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={notificationSettings[item.key]}
+                onChange={async (e) => {
+                  if (e.target.checked) {
+                    const granted = await requestNotificationPermission();
+                    if (!granted) {
+                      // Permission verweigert – State trotzdem aktualisieren, aber leise scheitert das Schedule
+                    }
+                  }
+                  setNotificationSettings({ [item.key]: e.target.checked });
+                }}
+                className="h-5 w-5 cursor-pointer accent-wt-pink"
+              />
+            </label>
+          ))}
         </div>
       </div>
 
