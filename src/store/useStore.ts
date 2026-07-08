@@ -12,6 +12,10 @@ interface SwipeHistoryEntry {
 }
 
 const UNDO_STACK_LIMIT = 5;
+// Obergrenze für gemerkte Links-Swipes. Begrenzt localStorage-Größe und
+// Firestore-Write-Payload; für die Discovery reicht ein Fenster der letzten
+// Ablehnungen (TMDB liefert ohnehin randomisierte Seiten).
+const SKIPPED_IDS_LIMIT = 2000;
 
 interface AppState {
   // Onboarding
@@ -76,7 +80,6 @@ interface AppState {
     watchlist?: WatchlistEntry[];
     skippedIds?: number[];
     selectedProviders?: string[];
-    isPremium?: boolean;
     onboardingDone?: boolean;
     contentFilter?: 'all' | 'movie' | 'series';
     selectedLanguages?: string[];
@@ -98,7 +101,11 @@ interface AppState {
   // Trending Cache
   trendingMovies: Movie[];
   trendingLastFetch: number;
-  setTrendingMovies: (movies: Movie[]) => void;
+  trendingProvidersKey: string;
+  setTrendingMovies: (movies: Movie[], providersKey: string) => void;
+
+  // Kompletter Reset (Daten zurücksetzen / Konto löschen)
+  resetAll: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -154,10 +161,13 @@ export const useStore = create<AppState>()(
       setCurrentIndex: (index) => set({ currentIndex: index }),
       getFilteredMovies: () => {
         const { movies, contentFilter, watchlist, skippedIds, selectedProviders } = get();
+        // Sets einmal bauen statt O(n)-includes pro Film
+        const watchlistIds = new Set(watchlist.map((w) => w.movie.id));
+        const skippedSet = new Set(skippedIds);
         return movies.filter((m) => {
           if (contentFilter !== 'all' && m.type !== contentFilter) return false;
-          if (watchlist.some((w) => w.movie.id === m.id)) return false;
-          if (skippedIds.includes(m.id)) return false;
+          if (watchlistIds.has(m.id)) return false;
+          if (skippedSet.has(m.id)) return false;
           // Nur Titel anzeigen die mindestens einen ausgewählten Anbieter haben
           if (!m.providers.some((p) => selectedProviders.includes(p))) return false;
           return true;
@@ -178,7 +188,12 @@ export const useStore = create<AppState>()(
 
       swipeLeft: (movie) =>
         set((state) => ({
-          skippedIds: [...state.skippedIds, movie.id],
+          // Ring-Puffer: nur die letzten SKIPPED_IDS_LIMIT behalten, sonst
+          // wächst das Array (und jeder Firestore-Sync) unbegrenzt.
+          skippedIds: [
+            ...state.skippedIds.slice(-(SKIPPED_IDS_LIMIT - 1)),
+            movie.id,
+          ],
           swipeHistory: [
             ...state.swipeHistory.slice(-(UNDO_STACK_LIMIT - 1)),
             { movie, direction: 'left' },
@@ -255,7 +270,8 @@ export const useStore = create<AppState>()(
           ...(data.selectedProviders !== undefined && {
             selectedProviders: data.selectedProviders,
           }),
-          ...(data.isPremium !== undefined && { isPremium: data.isPremium }),
+          // isPremium wird bewusst NICHT aus der Cloud übernommen —
+          // RevenueCat ist die einzige Quelle (siehe App.tsx).
           ...(data.onboardingDone !== undefined && {
             onboardingDone: data.onboardingDone,
           }),
@@ -288,11 +304,40 @@ export const useStore = create<AppState>()(
           notificationSettings: { ...state.notificationSettings, ...patch },
         })),
 
-      // Trending Cache (6h)
+      // Trending Cache (6h). Bei leerem Ergebnis (API-Fehler / Filter greift
+      // alles weg) bleiben die alten Movies erhalten — nur der Timestamp wird
+      // gesetzt, damit kein sofortiger Refetch-Loop entsteht.
       trendingMovies: [],
       trendingLastFetch: 0,
-      setTrendingMovies: (movies) =>
-        set({ trendingMovies: movies, trendingLastFetch: Date.now() }),
+      trendingProvidersKey: '',
+      setTrendingMovies: (movies, providersKey) =>
+        set((state) => ({
+          trendingMovies: movies.length > 0 ? movies : state.trendingMovies,
+          trendingLastFetch: Date.now(),
+          trendingProvidersKey: providersKey,
+        })),
+
+      resetAll: () =>
+        set({
+          onboardingDone: false,
+          selectedProviders: [],
+          contentFilter: 'all',
+          selectedLanguages: [],
+          selectedGenres: [],
+          movies: [],
+          isLoading: false,
+          currentPage: 1,
+          currentIndex: 0,
+          swipeHistory: [],
+          watchlist: [],
+          skippedIds: [],
+          isPremium: false,
+          swipesSinceAd: 0,
+          notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
+          trendingMovies: [],
+          trendingLastFetch: 0,
+          trendingProvidersKey: '',
+        }),
     }),
     {
       name: 'watchtwin-storage',
@@ -304,9 +349,30 @@ export const useStore = create<AppState>()(
         contentFilter: state.contentFilter,
         selectedLanguages: state.selectedLanguages,
         selectedGenres: state.selectedGenres,
-        isPremium: state.isPremium,
+        // isPremium bewusst NICHT persistiert — RevenueCat ist die einzige
+        // Quelle (sonst wäre Premium via localStorage-Edit fälschbar und
+        // würde nach Erstattung/Ablauf nie widerrufen).
         notificationSettings: state.notificationSettings,
+        trendingMovies: state.trendingMovies,
+        trendingLastFetch: state.trendingLastFetch,
+        trendingProvidersKey: state.trendingProvidersKey,
       }),
+      // Deep-Merge für verschachtelte Objekte: Wenn künftig ein neuer Sub-Key
+      // in notificationSettings dazukommt, darf das persistierte Alt-Objekt
+      // eines Bestandsnutzers die neuen Defaults nicht komplett ersetzen.
+      merge: (persisted, current) => {
+        const p = { ...((persisted ?? {}) as Partial<AppState>) };
+        // Altlast aus v1.2: isPremium war früher persistiert — nie übernehmen.
+        delete (p as Record<string, unknown>).isPremium;
+        return {
+          ...current,
+          ...p,
+          notificationSettings: {
+            ...current.notificationSettings,
+            ...(p.notificationSettings ?? {}),
+          },
+        };
+      },
     }
   )
 );

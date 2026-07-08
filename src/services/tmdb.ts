@@ -29,22 +29,41 @@ let movieGenres: Record<number, string> = {};
 let tvGenres: Record<number, string> = {};
 
 async function loadGenres() {
-  if (Object.keys(movieGenres).length > 0) return;
+  // Beide Caches prüfen — sonst bleibt der TV-Cache dauerhaft leer, wenn
+  // beim ersten Versuch nur der Movie-Teil durchkam.
+  if (
+    Object.keys(movieGenres).length > 0 &&
+    Object.keys(tvGenres).length > 0
+  ) {
+    return;
+  }
 
-  const [movieRes, tvRes] = await Promise.all([
-    fetch(`${BASE_URL}/genre/movie/list?language=${LANGUAGE}`, { headers }),
-    fetch(`${BASE_URL}/genre/tv/list?language=${LANGUAGE}`, { headers }),
-  ]);
+  try {
+    const [movieRes, tvRes] = await Promise.all([
+      fetch(`${BASE_URL}/genre/movie/list?language=${LANGUAGE}`, { headers }),
+      fetch(`${BASE_URL}/genre/tv/list?language=${LANGUAGE}`, { headers }),
+    ]);
 
-  const movieData = await movieRes.json();
-  const tvData = await tvRes.json();
+    const movieData = await movieRes.json();
+    const tvData = await tvRes.json();
 
-  movieGenres = Object.fromEntries(
-    movieData.genres.map((g: { id: number; name: string }) => [g.id, g.name])
-  );
-  tvGenres = Object.fromEntries(
-    tvData.genres.map((g: { id: number; name: string }) => [g.id, g.name])
-  );
+    // Bei Rate-Limit/Fehler liefert TMDB {status_code,...} ohne genres —
+    // dann Cache unangetastet lassen (nächster Aufruf versucht es erneut).
+    if (!Array.isArray(movieData?.genres) || !Array.isArray(tvData?.genres)) {
+      console.warn('[TMDB] Genre-Antwort unvollständig — überspringe Cache');
+      return;
+    }
+
+    // Atomar setzen: entweder beide Caches oder keinen
+    movieGenres = Object.fromEntries(
+      movieData.genres.map((g: { id: number; name: string }) => [g.id, g.name])
+    );
+    tvGenres = Object.fromEntries(
+      tvData.genres.map((g: { id: number; name: string }) => [g.id, g.name])
+    );
+  } catch (err) {
+    console.warn('[TMDB] Genre-Laden fehlgeschlagen:', err);
+  }
 }
 
 interface TmdbDiscoverResult {
@@ -91,21 +110,40 @@ export async function getTitleWatchLink(
   }
 }
 
+// Provider-Cache: Titel wiederholen sich über Sessions/Filter — ohne Cache
+// verursachte jede Deck-Nachladung bis zu 40 einzelne /watch/providers-Calls
+// (100-Swipe-Session ≈ 250+ Requests). Streaming-Verfügbarkeit ändert sich
+// selten; ein In-Memory-Cache pro App-Lauf reicht.
+const providersCache = new Map<string, string[]>();
+
 async function getProviders(
   id: number,
   type: 'movie' | 'tv'
 ): Promise<string[]> {
-  const res = await fetch(
-    `${BASE_URL}/${type}/${id}/watch/providers`,
-    { headers }
-  );
-  const data: WatchProviderResult = await res.json();
-  const flatrate = data.results?.DE?.flatrate ?? [];
+  const cacheKey = `${type}:${id}`;
+  const cached = providersCache.get(cacheKey);
+  if (cached) return cached;
 
-  return flatrate
-    .map((p) => findProviderByTmdbId(p.provider_id))
-    .filter(Boolean)
-    .map((p) => p!.id);
+  try {
+    const res = await fetch(
+      `${BASE_URL}/${type}/${id}/watch/providers`,
+      { headers }
+    );
+    const data: WatchProviderResult = await res.json();
+    const flatrate = data.results?.DE?.flatrate ?? [];
+
+    const result = flatrate
+      .map((p) => findProviderByTmdbId(p.provider_id))
+      .filter(Boolean)
+      .map((p) => p!.id);
+
+    providersCache.set(cacheKey, result);
+    return result;
+  } catch (err) {
+    // Fehler NICHT cachen — nächster Versuch darf es erneut probieren
+    console.warn('[TMDB] Provider-Lookup fehlgeschlagen:', err);
+    return [];
+  }
 }
 
 function shuffle<T>(array: T[]): T[] {
@@ -406,9 +444,11 @@ export async function getTrendingThisWeek(
   selectedProviderIds: string[] = [],
   limit = 20
 ): Promise<Movie[]> {
-  await loadGenres();
-
   try {
+    // Im try-Block: loadGenres ist zwar selbst abgesichert, aber so bleibt
+    // garantiert keine Exception unbehandelt Richtung UI.
+    await loadGenres();
+
     const [movieData, tvData] = await Promise.all([
       fetch(`${BASE_URL}/trending/movie/week?language=${LANGUAGE}`, { headers }).then(
         (r) => r.json()
@@ -418,21 +458,31 @@ export async function getTrendingThisWeek(
       ),
     ]);
 
-    const combined: Array<{ item: TmdbDiscoverResult; type: 'movie' | 'series' }> = [
-      ...(movieData.results ?? []).map((item: TmdbDiscoverResult) => ({
+    const combined: Array<{
+      item: TmdbDiscoverResult;
+      type: 'movie' | 'series';
+      rank: number;
+    }> = [
+      ...(movieData.results ?? []).map((item: TmdbDiscoverResult, i: number) => ({
         item,
         type: 'movie' as const,
+        rank: i,
       })),
-      ...(tvData.results ?? []).map((item: TmdbDiscoverResult) => ({
+      ...(tvData.results ?? []).map((item: TmdbDiscoverResult, i: number) => ({
         item,
         type: 'series' as const,
+        rank: i,
       })),
     ];
 
-    // Mit Poster + nach Popularität gewichtet sortieren (vote_average als Tiebreaker)
+    // Trend-Rang des Endpoints als Primär-Sortierung beibehalten (das IST
+    // das Feature „Neu & Trending"), vote_average nur als Tiebreaker.
+    // Movie/Serie mit gleichem Rang wechseln sich dadurch ab.
     const withPoster = combined
       .filter((c) => c.item.poster_path)
-      .sort((a, b) => b.item.vote_average - a.item.vote_average)
+      .sort(
+        (a, b) => a.rank - b.rank || b.item.vote_average - a.item.vote_average
+      )
       .slice(0, limit + 10); // ein paar mehr fetchen, da Provider-Filter durch sein wird
 
     // Provider pro Item batch-fetchen (5er Gruppen)

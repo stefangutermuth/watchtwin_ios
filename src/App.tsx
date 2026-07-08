@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { BottomNav } from './components/BottomNav';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { SwipePage } from './pages/SwipePage';
@@ -50,7 +51,6 @@ function AppContent() {
   const watchlist = useStore((s) => s.watchlist);
   const skippedIds = useStore((s) => s.skippedIds);
   const selectedProviders = useStore((s) => s.selectedProviders);
-  const isPremium = useStore((s) => s.isPremium);
   const contentFilter = useStore((s) => s.contentFilter);
   const selectedLanguages = useStore((s) => s.selectedLanguages);
   const selectedGenres = useStore((s) => s.selectedGenres);
@@ -65,18 +65,26 @@ function AppContent() {
     initializeAds();
     initializePurchases().then(() => {
       checkPremiumStatus().then((premium) => {
-        if (premium) setPremium(true);
+        // RevenueCat ist die einzige Premium-Quelle: auch false durchreichen,
+        // damit Premium nach Erstattung/Ablauf widerrufen wird. Nur nativ —
+        // im Browser gibt es kein RevenueCat (dort bleibt der Default false).
+        if (Capacitor.isNativePlatform()) setPremium(premium);
       });
     });
     initializeNotifications();
   }, [setPremium]);
 
-  // Re-schedule reminders when settings or watchlist count change
+  // Re-schedule reminders when settings or the watchlist THRESHOLD changes.
+  // Bewusst nicht an watchlist.length gekoppelt — sonst liefe bei jedem
+  // einzelnen Swipe eine native Cancel+Schedule-Sequenz.
   const notificationSettings = useStore((s) => s.notificationSettings);
+  const watchlistOverThreshold = watchlist.length > 3;
+  const watchlistLengthRef = useRef(watchlist.length);
+  watchlistLengthRef.current = watchlist.length;
   useEffect(() => {
     if (!onboardingDone) return; // erst nach Onboarding (Permission)
-    scheduleAllReminders(notificationSettings, watchlist.length);
-  }, [notificationSettings, watchlist.length, onboardingDone]);
+    scheduleAllReminders(notificationSettings, watchlistLengthRef.current);
+  }, [notificationSettings, watchlistOverThreshold, onboardingDone]);
 
   // Load data from Firestore on login
   useEffect(() => {
@@ -113,7 +121,8 @@ function AppContent() {
       watchlist,
       skippedIds,
       selectedProviders,
-      isPremium,
+      // isPremium wird bewusst NICHT mehr synchronisiert — RevenueCat ist
+      // die einzige Quelle; das Firestore-Feld wäre sonst manipulierbar.
       onboardingDone: storeOnboardingDone,
       contentFilter,
       selectedLanguages,
@@ -125,7 +134,6 @@ function AppContent() {
     watchlist,
     skippedIds,
     selectedProviders,
-    isPremium,
     storeOnboardingDone,
     contentFilter,
     selectedLanguages,

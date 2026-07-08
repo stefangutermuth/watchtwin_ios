@@ -7,7 +7,6 @@ interface UserData {
   watchlist: WatchlistEntry[];
   skippedIds: number[];
   selectedProviders: string[];
-  isPremium: boolean;
   onboardingDone: boolean;
   contentFilter: 'all' | 'movie' | 'series';
   selectedLanguages: string[];
@@ -36,17 +35,22 @@ export async function loadUserData(
 /** Löscht User-Daten (setzt auf leer) */
 export async function deleteUserData(uid: string): Promise<void> {
   const ref = doc(db, 'users', uid);
-  await setDoc(ref, {
-    watchlist: [],
-    skippedIds: [],
-    selectedProviders: [],
-    isPremium: false,
-    onboardingDone: false,
-    contentFilter: 'all',
-    selectedLanguages: [],
-    selectedGenres: [],
-    updatedAt: Date.now(),
-  });
+  // merge:true — isPremium und Profil-Felder (friendCode etc.) bleiben
+  // unangetastet; wir leeren nur die Nutzungsdaten.
+  await setDoc(
+    ref,
+    {
+      watchlist: [],
+      skippedIds: [],
+      selectedProviders: [],
+      onboardingDone: false,
+      contentFilter: 'all',
+      selectedLanguages: [],
+      selectedGenres: [],
+      updatedAt: Date.now(),
+    },
+    { merge: true }
+  );
 }
 
 /**
@@ -58,6 +62,17 @@ export async function deleteUserData(uid: string): Promise<void> {
  * In dem Fall muss sich der User vorher neu anmelden (re-authenticate).
  */
 export async function deleteAccountCompletely(uid: string): Promise<void> {
+  // 0. Recent-Login VOR dem Löschen prüfen. Firebase verlangt für deleteUser
+  // eine „kürzliche" Anmeldung (~5 min). Ohne diesen Pre-Check würden erst
+  // alle Firestore-Daten gelöscht und deleteUser wirft danach
+  // requires-recent-login — halbgelöschter, verwaister Account.
+  const lastSignIn = auth.currentUser?.metadata?.lastSignInTime;
+  if (lastSignIn && Date.now() - new Date(lastSignIn).getTime() > 5 * 60 * 1000) {
+    const err = new Error('Recent login required') as Error & { code: string };
+    err.code = 'auth/requires-recent-login';
+    throw err;
+  }
+
   // 1. Freundschaften löschen (alle, in denen UID vorkommt)
   try {
     const friendships = await getDocs(
@@ -68,24 +83,35 @@ export async function deleteAccountCompletely(uid: string): Promise<void> {
     console.warn('[delete] friendships:', err);
   }
 
-  // 2. Parties löschen (Host)
+  // 2. Parties löschen — als Host UND als Gast (DSGVO: guestName/Swipes
+  // dürfen nicht zurückbleiben)
   try {
-    const hostParties = await getDocs(
-      query(collection(db, 'parties'), where('hostUid', '==', uid))
-    );
-    await Promise.all(hostParties.docs.map((d) => deleteDoc(d.ref)));
+    const [hostParties, guestParties] = await Promise.all([
+      getDocs(query(collection(db, 'parties'), where('hostUid', '==', uid))),
+      getDocs(query(collection(db, 'parties'), where('guestUid', '==', uid))),
+    ]);
+    const refs = [...hostParties.docs, ...guestParties.docs];
+    await Promise.all(refs.map((d) => deleteDoc(d.ref)));
   } catch (err) {
-    console.warn('[delete] host parties:', err);
+    console.warn('[delete] parties:', err);
   }
 
-  // 3. User-Profil-Dokument
+  // 3. Profilbild aus Storage löschen (öffentlich lesbar — muss weg, Art. 17)
+  try {
+    const { getStorage, ref, deleteObject } = await import('firebase/storage');
+    await deleteObject(ref(getStorage(), `avatars/${uid}.jpg`));
+  } catch {
+    // Kein Avatar hochgeladen oder schon weg — ok
+  }
+
+  // 4. User-Profil-Dokument
   try {
     await deleteDoc(doc(db, 'users', uid));
   } catch (err) {
     console.warn('[delete] user doc:', err);
   }
 
-  // 4. Auth-Account löschen — kann 'requires-recent-login' werfen
+  // 5. Auth-Account löschen — Recent-Login wurde oben schon geprüft
   if (auth.currentUser && auth.currentUser.uid === uid) {
     await deleteUser(auth.currentUser);
   }
