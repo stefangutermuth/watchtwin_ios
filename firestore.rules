@@ -25,7 +25,19 @@ service cloud.firestore {
     // Subcollection `users/{uid}/private` verschieben.
     match /users/{uid} {
       allow read: if isSignedIn();
-      allow create, update: if isMe(uid);
+
+      // isPremium darf clientseitig NIE auf true gesetzt werden — RevenueCat
+      // ist die einzige Quelle (App wertet nur das SDK aus, nicht Firestore).
+      // false schreiben / Feld weglassen ist ok; bestehendes true darf bei
+      // merge-Writes unverändert mitkommen (Altbestand aus v1.2).
+      allow create: if isMe(uid)
+                    && (!('isPremium' in request.resource.data)
+                        || request.resource.data.isPremium == false);
+      allow update: if isMe(uid)
+                    && (!('isPremium' in request.resource.data)
+                        || request.resource.data.isPremium == false
+                        || ('isPremium' in resource.data
+                            && resource.data.isPremium == true));
       allow delete: if isMe(uid);
 
       // Subcollections: jeder Freund darf lesen, nur eigener User schreiben
@@ -88,8 +100,11 @@ service cloud.firestore {
                     && unchanged('hostUid')
                     && unchanged('guestUid');
 
-      // Delete: nur Host
-      allow delete: if isSignedIn() && request.auth.uid == resource.data.hostUid;
+      // Delete: Host oder Gast (Gast braucht das für die DSGVO-Konto-Löschung —
+      // seine Swipes/sein Name stehen im Party-Dokument)
+      allow delete: if isSignedIn()
+                    && (request.auth.uid == resource.data.hostUid
+                        || request.auth.uid == resource.data.guestUid);
     }
   }
 }

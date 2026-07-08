@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { ProviderSelect } from '../components/ProviderSelect';
 import { useStore } from '../store/useStore';
 import { useAuth } from '../contexts/AuthContext';
@@ -56,7 +57,6 @@ export function ProfilePage() {
   const selectedGenres = useStore((s) => s.selectedGenres);
   const toggleGenre = useStore((s) => s.toggleGenre);
   const setGenres = useStore((s) => s.setGenres);
-  const setOnboardingDone = useStore((s) => s.setOnboardingDone);
   const resetDeck = useStore((s) => s.resetDeck);
   const isPremium = useStore((s) => s.isPremium);
   const setPremium = useStore((s) => s.setPremium);
@@ -147,8 +147,11 @@ export function ProfilePage() {
     if (user) {
       await deleteUserData(user.uid).catch(console.error);
     }
-    localStorage.removeItem('watchtwin-storage');
-    setOnboardingDone(false);
+    // Erst den In-Memory-State leeren, DANN den Storage-Key entfernen.
+    // Andersherum persistiert der nächste set()-Call den alten State sofort
+    // wieder nach localStorage — der Reset wäre wirkungslos.
+    useStore.getState().resetAll();
+    useStore.persist.clearStorage();
     window.location.href = '/';
   }
 
@@ -160,8 +163,9 @@ export function ProfilePage() {
     if (!confirmed) return;
     try {
       await deleteAccountCompletely(user.uid);
-      localStorage.removeItem('watchtwin-storage');
-      setOnboardingDone(false);
+      // Reihenfolge wichtig — siehe handleResetAll
+      useStore.getState().resetAll();
+      useStore.persist.clearStorage();
       window.location.href = '/';
     } catch (err) {
       const code = (err as { code?: string })?.code;
@@ -510,13 +514,21 @@ export function ProfilePage() {
                 type="checkbox"
                 checked={notificationSettings[item.key]}
                 onChange={async (e) => {
-                  if (e.target.checked) {
+                  const enabled = e.target.checked;
+                  // Beim Einschalten auf nativen Plattformen erst die
+                  // System-Permission holen. Wird sie verweigert, bleibt der
+                  // Toggle AUS — sonst zeigt die Checkbox „aktiv", obwohl nie
+                  // etwas geplant wird.
+                  if (enabled && Capacitor.isNativePlatform()) {
                     const granted = await requestNotificationPermission();
                     if (!granted) {
-                      // Permission verweigert – State trotzdem aktualisieren, aber leise scheitert das Schedule
+                      alert(
+                        'Benachrichtigungen sind für WatchTwin deaktiviert. Bitte erlaube sie in den Einstellungen deines Geräts und versuche es erneut.'
+                      );
+                      return;
                     }
                   }
-                  setNotificationSettings({ [item.key]: e.target.checked });
+                  setNotificationSettings({ [item.key]: enabled });
                 }}
                 className="h-5 w-5 cursor-pointer accent-wt-pink"
               />

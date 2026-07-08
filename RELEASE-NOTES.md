@@ -1,5 +1,31 @@
 # WatchTwin — App Store Release Notes
 
+## v1.3 (Android versionCode 6, iOS Build 30) — 2026-07-08
+
+**Bugfix- & Stabilitäts-Release** (nach Code-Review, siehe OPTIMIZATION-PLAN.md):
+
+- 🐛 **Trending-Endlosschleife behoben**: Bei API-Fehler/leerem Filter-Ergebnis fetchte die
+  Trending-Leiste ununterbrochen neu (Akku/Datenverbrauch). Cache-Freshness hängt jetzt am
+  Timestamp; leere Ergebnisse überschreiben den gültigen Cache nicht mehr.
+- 🔒 **Premium nicht mehr manipulierbar**: `isPremium` wird nicht mehr in localStorage/Firestore
+  persistiert — RevenueCat ist die einzige Quelle, auch Widerruf (Erstattung/Ablauf) greift jetzt.
+  Firestore-Rules blockieren zusätzlich das Setzen von `isPremium: true` per Client.
+- 🐛 **„Alle Daten zurücksetzen"/Konto löschen** leert den lokalen Speicher jetzt wirklich
+  (vorher schrieb der laufende State ihn sofort wieder zurück).
+- 🐛 **Trending reagiert auf Anbieter-Wechsel** (Provider-Key im Cache).
+- 🛡️ **DSGVO: Konto-Löschung vervollständigt** — Profilbild im Storage und Gast-Parties werden
+  mitgelöscht; Recent-Login wird VOR dem Löschen geprüft (keine halbgelöschten Accounts mehr).
+- ⚡ **~90 % weniger TMDB-Requests**: Provider-Lookups gecacht (vorher ~250 Requests pro
+  Swipe-Session), Trending-Cache überlebt App-Neustarts, Deck lädt früher nach (Schwelle 6).
+- ⚡ **Swipe-Verlauf begrenzt** (letzte 2000) — Firestore-Sync-Payload wächst nicht mehr unbegrenzt.
+- 🛡️ Android: `allowBackup=false`; Genre-Laden robust gegen TMDB-Rate-Limits;
+  Trending sortiert nach echtem Trend-Rang; Notification-Toggle nur bei erteilter Permission.
+
+**⚠️ Deployment-Hinweis:** `firestore.rules` wurde geändert (isPremium-Schutz, Party-Delete für
+Gäste) → muss separat in der Firebase Console deployt werden (unabhängig vom App-Release)!
+
+---
+
 ## v1.2 (Android versionCode 5, iOS Build 29) — 2026-05-17
 
 **Eingereicht zur Review:** Android (Google Play) ✅, iOS (App Store) ⏳

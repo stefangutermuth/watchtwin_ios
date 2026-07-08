@@ -91,12 +91,14 @@ export function SwipePage() {
 
   const filtered = getFilteredMovies();
 
-  // Load more random titles when running low
+  // Load more random titles when running low.
+  // Schwelle 6 statt 3: Nachschub ist da, bevor das Deck leer läuft
+  // (verhindert EmptyState-Flackern beim schnellen Swipen).
   useEffect(() => {
     if (
       !isLoading &&
       filtered.length > 0 &&
-      filtered.length <= 3
+      filtered.length <= 6
     ) {
       loadMovies();
     }

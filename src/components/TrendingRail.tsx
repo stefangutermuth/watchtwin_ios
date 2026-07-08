@@ -12,22 +12,38 @@ const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 export function TrendingRail() {
   const trendingMovies = useStore((s) => s.trendingMovies);
   const trendingLastFetch = useStore((s) => s.trendingLastFetch);
+  const trendingProvidersKey = useStore((s) => s.trendingProvidersKey);
   const setTrendingMovies = useStore((s) => s.setTrendingMovies);
   const selectedProviders = useStore((s) => s.selectedProviders);
   const [loading, setLoading] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
+  // Stabiler Cache-Key der Provider-Auswahl — ändert sich der, ist der
+  // Cache ungültig (sonst zeigt die Leiste nach Provider-Wechsel bis zu
+  // 6h die alten, falsch gefilterten Titel).
+  const providersKey = [...selectedProviders].sort().join(',');
+
   useEffect(() => {
     const now = Date.now();
+    // Freshness hängt am Timestamp, NICHT an trendingMovies.length —
+    // sonst löst ein leeres Ergebnis (API-Fehler / Filter greift alles weg)
+    // eine Endlos-Refetch-Schleife aus.
     const isFresh =
-      trendingMovies.length > 0 && now - trendingLastFetch < CACHE_TTL_MS;
+      trendingLastFetch > 0 &&
+      now - trendingLastFetch < CACHE_TTL_MS &&
+      trendingProvidersKey === providersKey;
     if (isFresh) return;
 
     let cancelled = false;
     setLoading(true);
     getTrendingThisWeek(selectedProviders, 20)
       .then((movies) => {
-        if (!cancelled) setTrendingMovies(movies);
+        if (!cancelled) setTrendingMovies(movies, providersKey);
+      })
+      .catch((err) => {
+        console.warn('[TrendingRail] Fetch fehlgeschlagen:', err);
+        // Timestamp trotzdem setzen, damit kein Refetch-Sturm entsteht
+        if (!cancelled) setTrendingMovies([], providersKey);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -36,8 +52,8 @@ export function TrendingRail() {
     return () => {
       cancelled = true;
     };
-    // selectedProviders bewusst in deps: bei Provider-Wechsel neu fetchen
-  }, [selectedProviders, trendingMovies.length, trendingLastFetch, setTrendingMovies]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- selectedProviders ist über providersKey abgedeckt
+  }, [providersKey, trendingLastFetch, trendingProvidersKey, setTrendingMovies]);
 
   if (!loading && trendingMovies.length === 0) return null;
 
