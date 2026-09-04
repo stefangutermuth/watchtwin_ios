@@ -18,8 +18,13 @@
 - 🛠️ **Build-Fix**: `@capacitor-community/admob` nutzt `proguard-android.txt`, das AGP 9.x hart
   ablehnt → `scripts/patch-admob-proguard.cjs` patcht das per `postinstall` (siehe CLAUDE.md).
 - 📄 `website/app-ads.txt` (AdMob-Verifizierung) ins Repo aufgenommen.
+- 🎨 **Swipe-Buttons vereinheitlicht** (`SwipeActionButton`): fünf identische Kreise mit
+  getöntem Ring, Beschriftung darunter, Farbe = Swipe-Richtung (rot Nope, blau Gesehen,
+  lila Favorit, grün Like, grau Zurück). Vorher drei Größen und zwei Stile → wirkte unruhig.
+  Legende im Swipe-Tutorial angepasst.
 
-Store-Text („Was ist neu"): *Stabilitäts- und Sicherheitsupdate, verbesserte Kompatibilität mit Android 16.*
+Store-Text („Was ist neu"): *Übersichtlichere Swipe-Buttons mit Beschriftung, Stabilitäts- und
+Sicherheitsupdate, verbesserte Kompatibilität mit Android 16.*
 
 ---
 

@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark, faHeart, faRotateLeft, faStar, faEye, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
+import { SwipeActionButton } from '../components/SwipeActionButton';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SwipeDeck } from '../components/SwipeDeck';
 import { SwipeSkeleton } from '../components/SwipeSkeleton';
@@ -217,56 +218,42 @@ export function SwipePage() {
 
       {/* Action buttons */}
       {currentMovie && (
-        <div className="flex items-center justify-center gap-3 pb-5">
-          {/* Undo */}
-          <button
+        <div className="flex items-start justify-center gap-1.5 pb-4">
+          {/* Fünf identische Buttons, Farbe = Swipe-Richtung (siehe SwipeActionButton) */}
+          <SwipeActionButton
+            icon={faRotateLeft}
+            label="Zurück"
+            tone="neutral"
             onClick={handleUndo}
             disabled={!canUndo}
-            aria-label="Letzten Swipe rückgängig"
-            className={`group flex h-11 w-11 items-center justify-center rounded-full bg-wt-card shadow-md ring-1 transition-all ${
-              canUndo
-                ? 'text-yellow-400 ring-yellow-400/30 hover:scale-110 active:scale-95'
-                : 'text-gray-600 ring-white/5 opacity-40'
-            }`}
-          >
-            <FontAwesomeIcon icon={faRotateLeft} className="text-base" />
-          </button>
-
-          {/* Nope */}
-          <button
+            ariaLabel="Letzten Swipe rückgängig"
+          />
+          <SwipeActionButton
+            icon={faXmark}
+            label="Nope"
+            tone="nope"
             onClick={() => handleSwipe('left', currentMovie)}
-            aria-label="Nope"
-            className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-wt-card text-red-500 shadow-xl ring-1 ring-red-500/40 transition-all hover:scale-110 hover:ring-red-500 hover:shadow-red-500/30 active:scale-95"
-          >
-            <FontAwesomeIcon icon={faXmark} className="text-2xl drop-shadow" />
-          </button>
-
-          {/* Gesehen */}
-          <button
+          />
+          <SwipeActionButton
+            icon={faEye}
+            label="Gesehen"
+            tone="seen"
             onClick={() => handleSwipe('down', currentMovie)}
-            aria-label="Schon gesehen"
-            className="group flex h-12 w-12 items-center justify-center rounded-full bg-wt-card text-sky-400 shadow-lg ring-1 ring-sky-400/40 transition-all hover:scale-110 hover:ring-sky-400 hover:shadow-sky-500/30 active:scale-95"
-          >
-            <FontAwesomeIcon icon={faEye} className="text-base" />
-          </button>
-
-          {/* Super Like */}
-          <button
+            ariaLabel="Schon gesehen"
+          />
+          <SwipeActionButton
+            icon={faStar}
+            label="Favorit"
+            tone="favorite"
             onClick={() => handleSwipe('up', currentMovie)}
-            aria-label="Super Like"
-            className="group relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-wt-purple to-wt-pink text-white shadow-lg shadow-wt-pink/40 transition-all hover:scale-110 active:scale-95"
-          >
-            <FontAwesomeIcon icon={faStar} className="text-base drop-shadow" />
-          </button>
-
-          {/* Like */}
-          <button
+            ariaLabel="Top-Favorit"
+          />
+          <SwipeActionButton
+            icon={faHeart}
+            label="Like"
+            tone="like"
             onClick={() => handleSwipe('right', currentMovie)}
-            aria-label="Like"
-            className="group relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-xl shadow-emerald-500/40 transition-all hover:scale-110 hover:shadow-emerald-500/60 active:scale-95"
-          >
-            <FontAwesomeIcon icon={faHeart} className="text-2xl drop-shadow" />
-          </button>
+          />
         </div>
       )}
 
