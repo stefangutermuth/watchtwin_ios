@@ -1,5 +1,28 @@
 # WatchTwin — App Store Release Notes
 
+## v1.4 (Android versionCode 7, iOS Build 31) — 2026-09-04
+
+**Wartungs-Release** (kein Nutzer-Bug — Crashlytics iOS/Android seit 1.3 ohne Absturz):
+
+- 🔒 **Sicherheits-Audit**: 12 → **0** Schwachstellen in Produktions-Dependencies.
+  Relevant war nur `react-router-dom` 7.14.0 → 7.18.3 (Open-Redirect/XSS-Klasse);
+  Rest war Build-Tooling. `@capacitor/cli` von `dependencies` nach `devDependencies`.
+- ⬆️ **Dependencies (Minor)**: Capacitor Core/iOS/Android 8.3 → 8.5.1, Local-Notifications
+  8.2 → 8.3.1, @capacitor-firebase/* 8.2 → 8.5.1, Firebase 12.12 → 12.18, AdMob-Plugin 8.0 → 8.1,
+  FontAwesome/Tailwind/Vite-Tooling aktuell. **Nicht** angefasst (Major): RevenueCat 12→13,
+  framer-motion 12→13.
+- 🤖 **Android 16 / Play-Console-Warnung behoben**: Veraltetes `windowOptOutEdgeToEdgeEnforcement`
+  (ab targetSdk 36 wirkungslos) und deprecated `setStatusBarColor`/`setNavigationBarColor`
+  entfernt; helle Bar-Icons jetzt via `WindowInsetsControllerCompat`. Auf Android-16-Emulator
+  verifiziert: Layout unverändert korrekt.
+- 🛠️ **Build-Fix**: `@capacitor-community/admob` nutzt `proguard-android.txt`, das AGP 9.x hart
+  ablehnt → `scripts/patch-admob-proguard.cjs` patcht das per `postinstall` (siehe CLAUDE.md).
+- 📄 `website/app-ads.txt` (AdMob-Verifizierung) ins Repo aufgenommen.
+
+Store-Text („Was ist neu"): *Stabilitäts- und Sicherheitsupdate, verbesserte Kompatibilität mit Android 16.*
+
+---
+
 ## v1.3 (Android versionCode 6, iOS Build 30) — 2026-07-08
 
 **Bugfix- & Stabilitäts-Release** (nach Code-Review, siehe OPTIMIZATION-PLAN.md):
