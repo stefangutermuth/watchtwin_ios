@@ -1,6 +1,9 @@
 # WatchTwin — App Store Release Notes
 
-## v1.4 (Android versionCode 7, iOS Build 31) — 2026-09-04
+## v1.4 (Android versionCode 8, iOS Build 32) — 2026-09-05
+
+> Build 31 / versionCode 7 (04.09.) enthielten den Deck-Bugfix noch nicht und wurden vor der
+> Veröffentlichung durch Build 32 / versionCode 8 ersetzt.
 
 **Wartungs-Release** (kein Nutzer-Bug — Crashlytics iOS/Android seit 1.3 ohne Absturz):
 
@@ -18,6 +21,17 @@
 - 🛠️ **Build-Fix**: `@capacitor-community/admob` nutzt `proguard-android.txt`, das AGP 9.x hart
   ablehnt → `scripts/patch-admob-proguard.cjs` patcht das per `postinstall` (siehe CLAUDE.md).
 - 📄 `website/app-ads.txt` (AdMob-Verifizierung) ins Repo aufgenommen.
+- 🐛 **„Alles durchgeswipet" obwohl nichts geswiped (iOS gemeldet)**: TMDB drosselt beim
+  App-Start (Trending + Deck ≈ 80 Requests → HTTP 429). `getProviders` (seit 1.3) gab bei
+  Fehlern `[]` zurück *und cachte das*, `discoverMovies` warf Titel ohne Anbieter weg, und
+  der Nachlade-Effekt griff nur bei `filtered.length > 0` → Deck dauerhaft leer bis Neustart.
+  Fix: `tmdbFetch`-Wrapper (max. 6 parallel, 429/5xx-Retry mit Backoff + Retry-After),
+  `getProviders` liefert bei Fehler `null` (nie gecacht), Discover fällt auf die gewählten
+  Anbieter zurück statt zu verwerfen, SwipePage lädt bei leerem Deck bis zu 3× automatisch
+  nach, EmptyState hat „Neue Vorschläge laden". Unter künstlicher 50 %-Drosselung verifiziert.
+- ✨ **Trending-Titel direkt bewerten**: Aus dem Detail-Modal der „Neu & Trending"-Leiste
+  geht jetzt Watchlist / Favorit / Gesehen (gleiche Login- und Ad-Logik wie im Deck);
+  Titel auf der Watchlist bekommen ein grünes Häkchen in der Leiste.
 - 🎨 **Swipe-Buttons vereinheitlicht** (`SwipeActionButton`): fünf identische Kreise mit
   getöntem Ring, Beschriftung darunter, Farbe = Swipe-Richtung (rot Nope, blau Gesehen,
   lila Favorit, grün Like, grau Zurück). Vorher drei Größen und zwei Stile → wirkte unruhig.

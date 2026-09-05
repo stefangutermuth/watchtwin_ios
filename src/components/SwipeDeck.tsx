@@ -9,23 +9,29 @@ interface SwipeDeckProps {
   currentIndex?: number; // kept for compatibility, not used
   onSwipe: (direction: SwipeDirection, movie: Movie) => void;
   onTapCard?: (movie: Movie) => void;
+  /** Deck manuell neu laden (EmptyState-Button). */
+  onReload?: () => void;
 }
 
-export function SwipeDeck({ movies, onSwipe, onTapCard }: SwipeDeckProps) {
+export function SwipeDeck({ movies, onSwipe, onTapCard, onReload }: SwipeDeckProps) {
   const navigate = useNavigate();
   const visibleMovies = movies.slice(0, 2);
 
   if (visibleMovies.length === 0) {
+    // Ein leeres Deck heißt fast nie „wirklich alles gesehen" — meist hat
+    // TMDB gerade gedrosselt (429) oder der Zufallsseiten-Batch war leer.
+    // Deshalb: Neu laden als Hauptaktion, ehrlicher Text.
     return (
       <EmptyState
         emoji="🍿"
         iconColor="pink"
-        title="Alles durchgeswipet!"
-        description="Du hast alle Titel gesehen. Schau in deine Watchlist oder passe deine Filter an, um noch mehr zu entdecken."
-        action={{
-          label: 'Zur Watchlist',
-          onClick: () => navigate('/watchlist'),
-        }}
+        title="Gerade keine neuen Titel"
+        description="Wir haben nichts Passendes mehr auf Lager. Lade neue Vorschläge oder passe deine Anbieter und Filter an."
+        action={
+          onReload
+            ? { label: 'Neue Vorschläge laden', onClick: onReload }
+            : { label: 'Zur Watchlist', onClick: () => navigate('/watchlist') }
+        }
         secondaryAction={{
           label: 'Profil & Filter anpassen',
           onClick: () => navigate('/profile'),

@@ -24,6 +24,63 @@ const headers = {
   'Content-Type': 'application/json',
 };
 
+// ── Rate-Limit-sicherer Fetch ────────────────────────────────────────
+// TMDB drosselt bei Bursts (HTTP 429). Beim App-Start feuern Trending +
+// Deck zusammen ~80 Requests — ohne Schutz kamen 429er zurück, die als
+// „keine Anbieter" interpretiert wurden → leeres Deck, „alles geswiped".
+// Der Wrapper begrenzt die Parallelität und wiederholt 429/5xx mit
+// Backoff (Retry-After wird respektiert).
+const MAX_CONCURRENT = 6;
+let inFlight = 0;
+const waiters: Array<() => void> = [];
+
+function acquireSlot(): Promise<void> {
+  if (inFlight < MAX_CONCURRENT) {
+    inFlight++;
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    waiters.push(() => {
+      inFlight++;
+      resolve();
+    });
+  });
+}
+
+function releaseSlot() {
+  inFlight--;
+  const next = waiters.shift();
+  if (next) next();
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function tmdbFetch(url: string, init: RequestInit = { headers }): Promise<Response> {
+  const maxAttempts = 4;
+  for (let attempt = 0; ; attempt++) {
+    await acquireSlot();
+    let res: Response;
+    try {
+      res = await fetch(url, init);
+    } catch (err) {
+      releaseSlot();
+      if (attempt >= maxAttempts - 1) throw err;
+      await sleep(600 * 2 ** attempt);
+      continue;
+    }
+    releaseSlot();
+
+    if (res.status !== 429 && res.status < 500) return res;
+    if (attempt >= maxAttempts - 1) return res;
+
+    const retryAfter = Number(res.headers.get('Retry-After'));
+    const delay = Number.isFinite(retryAfter) && retryAfter > 0
+      ? retryAfter * 1000
+      : 600 * 2 ** attempt;
+    await sleep(Math.min(delay, 8000));
+  }
+}
+
 // Genre maps (cached)
 let movieGenres: Record<number, string> = {};
 let tvGenres: Record<number, string> = {};
@@ -40,8 +97,8 @@ async function loadGenres() {
 
   try {
     const [movieRes, tvRes] = await Promise.all([
-      fetch(`${BASE_URL}/genre/movie/list?language=${LANGUAGE}`, { headers }),
-      fetch(`${BASE_URL}/genre/tv/list?language=${LANGUAGE}`, { headers }),
+      tmdbFetch(`${BASE_URL}/genre/movie/list?language=${LANGUAGE}`, { headers }),
+      tmdbFetch(`${BASE_URL}/genre/tv/list?language=${LANGUAGE}`, { headers }),
     ]);
 
     const movieData = await movieRes.json();
@@ -99,7 +156,7 @@ export async function getTitleWatchLink(
 ): Promise<string | null> {
   try {
     const endpoint = type === 'movie' ? 'movie' : 'tv';
-    const res = await fetch(
+    const res = await tmdbFetch(
       `${BASE_URL}/${endpoint}/${id}/watch/providers`,
       { headers }
     );
@@ -116,19 +173,26 @@ export async function getTitleWatchLink(
 // selten; ein In-Memory-Cache pro App-Lauf reicht.
 const providersCache = new Map<string, string[]>();
 
+/**
+ * Streaming-Anbieter eines Titels (DE, Flatrate).
+ * Gibt `null` zurück, wenn der Lookup fehlgeschlagen ist (429/5xx/Netz) —
+ * NICHT `[]`, damit Aufrufer „unbekannt" von „wirklich nirgends verfügbar"
+ * unterscheiden können. Fehler werden nie gecacht.
+ */
 async function getProviders(
   id: number,
   type: 'movie' | 'tv'
-): Promise<string[]> {
+): Promise<string[] | null> {
   const cacheKey = `${type}:${id}`;
   const cached = providersCache.get(cacheKey);
   if (cached) return cached;
 
   try {
-    const res = await fetch(
-      `${BASE_URL}/${type}/${id}/watch/providers`,
-      { headers }
-    );
+    const res = await tmdbFetch(`${BASE_URL}/${type}/${id}/watch/providers`);
+    if (!res.ok) {
+      console.warn(`[TMDB] Provider-Lookup HTTP ${res.status} für ${cacheKey}`);
+      return null;
+    }
     const data: WatchProviderResult = await res.json();
     const flatrate = data.results?.DE?.flatrate ?? [];
 
@@ -140,9 +204,8 @@ async function getProviders(
     providersCache.set(cacheKey, result);
     return result;
   } catch (err) {
-    // Fehler NICHT cachen — nächster Versuch darf es erneut probieren
     console.warn('[TMDB] Provider-Lookup fehlgeschlagen:', err);
-    return [];
+    return null;
   }
 }
 
@@ -173,14 +236,14 @@ async function getTotalPages(
 
   const moviePromise = skipMovie
     ? Promise.resolve({ total_pages: 0 })
-    : fetch(
+    : tmdbFetch(
         `${BASE_URL}/discover/movie?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=flatrate&page=1&vote_count.gte=10${langFilter}${movieGenreParam}`,
         { headers }
       ).then((r) => r.json());
 
   const tvPromise = skipTv
     ? Promise.resolve({ total_pages: 0 })
-    : fetch(
+    : tmdbFetch(
         `${BASE_URL}/discover/tv?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=flatrate&page=1&vote_count.gte=10${langFilter}${tvGenreParam}`,
         { headers }
       ).then((r) => r.json());
@@ -222,7 +285,7 @@ export async function getCredits(
   const endpoint = type === 'movie' ? 'movie' : 'tv';
 
   try {
-    const res = await fetch(
+    const res = await tmdbFetch(
       `${BASE_URL}/${endpoint}/${id}/credits?language=${LANGUAGE}`,
       { headers }
     );
@@ -288,7 +351,7 @@ export async function getTrailerKey(
   const endpoint = type === 'movie' ? 'movie' : 'tv';
 
   async function fetchVideos(lang: string): Promise<TmdbVideo[]> {
-    const res = await fetch(
+    const res = await tmdbFetch(
       `${BASE_URL}/${endpoint}/${id}/videos?language=${lang}`,
       { headers }
     );
@@ -363,14 +426,14 @@ export async function discoverMovies(
 
   const moviePromise = skipMovie || totalPages.movie === 0
     ? Promise.resolve({ results: [] as TmdbDiscoverResult[] })
-    : fetch(
+    : tmdbFetch(
         `${BASE_URL}/discover/movie?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=flatrate&sort_by=popularity.desc&page=${randomMoviePage}&vote_count.gte=10${langFilter}${movieGenre.param}`,
         { headers }
       ).then((r) => r.json());
 
   const tvPromise = skipTv || totalPages.tv === 0
     ? Promise.resolve({ results: [] as TmdbDiscoverResult[] })
-    : fetch(
+    : tmdbFetch(
         `${BASE_URL}/discover/tv?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=flatrate&sort_by=popularity.desc&page=${randomTvPage}&vote_count.gte=10${langFilter}${tvGenre.param}`,
         { headers }
       ).then((r) => r.json());
@@ -389,9 +452,11 @@ export async function discoverMovies(
   // Filter out items without poster
   const withPoster = combined.filter((c) => c.item.poster_path);
 
-  // Fetch providers for each (batch in groups of 5 for speed)
+  // Provider-Lookups für alle Titel auf einmal anstoßen — die Parallelität
+  // (max. 6 gleichzeitig) und 429-Retries regelt tmdbFetch. Sequentielle
+  // 5er-Blöcke summierten unter Drosselung die Backoff-Wartezeiten auf.
   const movies: Movie[] = [];
-  const batchSize = 5;
+  const batchSize = Math.max(withPoster.length, 1);
 
   for (let i = 0; i < withPoster.length; i += batchSize) {
     const batch = withPoster.slice(i, i + batchSize);
@@ -403,7 +468,11 @@ export async function discoverMovies(
 
     for (let j = 0; j < batch.length; j++) {
       const { item, type } = batch[j];
-      const itemProviders = providerResults[j];
+      // Discover hat bereits nach with_watch_providers gefiltert — der Titel
+      // ist also bei mindestens einem gewählten Anbieter verfügbar. Schlägt
+      // der Detail-Lookup fehl (null), fallen wir auf die gewählten Anbieter
+      // zurück, statt den Titel zu verwerfen (sonst leeres Deck bei 429).
+      const itemProviders = providerResults[j] ?? selectedProviderIds;
 
       // Only include if at least one selected provider
       if (itemProviders.length === 0) continue;
@@ -450,10 +519,10 @@ export async function getTrendingThisWeek(
     await loadGenres();
 
     const [movieData, tvData] = await Promise.all([
-      fetch(`${BASE_URL}/trending/movie/week?language=${LANGUAGE}`, { headers }).then(
+      tmdbFetch(`${BASE_URL}/trending/movie/week?language=${LANGUAGE}`, { headers }).then(
         (r) => r.json()
       ),
-      fetch(`${BASE_URL}/trending/tv/week?language=${LANGUAGE}`, { headers }).then(
+      tmdbFetch(`${BASE_URL}/trending/tv/week?language=${LANGUAGE}`, { headers }).then(
         (r) => r.json()
       ),
     ]);
@@ -499,7 +568,11 @@ export async function getTrendingThisWeek(
 
       for (let j = 0; j < batch.length; j++) {
         const { item, type } = batch[j];
-        const itemProviders = providerResults[j];
+        // Lookup fehlgeschlagen (null) → Titel überspringen, wenn ein
+        // Provider-Filter aktiv ist (Trending hat keine Discover-Garantie).
+        const lookup = providerResults[j];
+        if (lookup === null && selectedProviderIds.length > 0) continue;
+        const itemProviders = lookup ?? [];
 
         // Wenn User Provider gewählt hat: nur diese matchen lassen.
         // Wenn nicht: alle Items zulassen (auch ohne Provider — manche Filme sind nur Kino).

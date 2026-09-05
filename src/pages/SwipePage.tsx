@@ -105,6 +105,29 @@ export function SwipePage() {
     }
   }, [filtered.length, isLoading, loadMovies]);
 
+  // Leeres Deck automatisch nachladen. Ein leerer Batch heißt fast nie
+  // „alles gesehen", sondern: TMDB hat gedrosselt (429) oder die zufällige
+  // Seite lieferte nur bereits geswipte Titel. Ohne diesen Effekt blieb
+  // die App bis zum Neustart im EmptyState hängen (Bug v1.3/1.4).
+  // Max. 3 Versuche mit wachsendem Abstand, Zähler resettet sobald Titel da sind.
+  const emptyRetries = useRef(0);
+  useEffect(() => {
+    if (filtered.length > 0) {
+      emptyRetries.current = 0;
+      return;
+    }
+    if (isLoading || selectedProviders.length === 0) return;
+    if (emptyRetries.current >= 3) return;
+    const attempt = emptyRetries.current++;
+    const t = setTimeout(() => loadMovies(), 1500 * (attempt + 1));
+    return () => clearTimeout(t);
+  }, [filtered.length, isLoading, selectedProviders.length, loadMovies]);
+
+  function handleReload() {
+    emptyRetries.current = 0;
+    loadMovies();
+  }
+
   function handleSwipe(direction: SwipeDirection, movie: Movie) {
     // Speichern-Aktionen (rechts, oben, unten) erfordern Login
     if (!user && direction !== 'left') {
@@ -199,8 +222,9 @@ export function SwipePage() {
         </div>
       </div>
 
-      {/* Neu & Trending Rail */}
-      <TrendingRail />
+      {/* Neu & Trending Rail — Titel können direkt aus dem Detail-Modal
+          auf Watchlist / Favorit / Gesehen (gleiche Login- und Ad-Logik) */}
+      <TrendingRail onSwipe={handleSwipe} />
 
       {/* Swipe area */}
       <div className="relative flex-1 px-4 pb-4">
@@ -212,6 +236,7 @@ export function SwipePage() {
             currentIndex={currentIndex}
             onSwipe={handleSwipe}
             onTapCard={(movie) => setDetailMovie(movie)}
+            onReload={handleReload}
           />
         )}
       </div>
