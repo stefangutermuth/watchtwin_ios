@@ -4,7 +4,7 @@
 
 **Bugfix-Release** direkt nach 1.4. Apple hatte 1.4 (Build 31) bereits über Nacht genehmigt und
 veröffentlicht (live seit 05.09., 00:02 Uhr) — der Versionszug 1.4 ist damit geschlossen → 1.4.1.
-Android 1.4 (versionCode 7) wurde nie eingereicht; Android springt von 1.3 direkt auf 1.4.1.
+Android 1.4 (versionCode 7) ging am 04.09. ebenfalls live (Play-Review über Nacht).
 
 - 🐛 **„Alles durchgeswipet" obwohl nichts geswiped (iOS gemeldet)**: TMDB drosselt beim
   App-Start (Trending + Deck ≈ 80 Requests → HTTP 429). `getProviders` (seit 1.3) gab bei
@@ -24,7 +24,7 @@ Trending-Titel lassen sich jetzt direkt auf die Watchlist setzen.* (Android zus�
 
 ---
 
-## v1.4 (iOS Build 31 — live seit 2026-09-05; Android versionCode 7 nie veröffentlicht) — 2026-09-04
+## v1.4 (Android versionCode 7, iOS Build 31 — beide live seit 2026-09-04/05) — 2026-09-04
 
 **Wartungs-Release** (kein Nutzer-Bug — Crashlytics iOS/Android seit 1.3 ohne Absturz):
 
