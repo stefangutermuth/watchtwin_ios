@@ -318,7 +318,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.4.1;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				PRODUCT_BUNDLE_IDENTIFIER = de.watchtwin.app;
@@ -342,7 +342,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.4.1;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				PRODUCT_BUNDLE_IDENTIFIER = de.watchtwin.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
