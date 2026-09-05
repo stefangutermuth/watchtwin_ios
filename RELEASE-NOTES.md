@@ -1,5 +1,57 @@
 # WatchTwin — App Store Release Notes
 
+## v1.4.1 (Android versionCode 8, iOS Build 32) — 2026-09-05
+
+**Bugfix-Release** direkt nach 1.4. Apple hatte 1.4 (Build 31) bereits über Nacht genehmigt und
+veröffentlicht (live seit 05.09., 00:02 Uhr) — der Versionszug 1.4 ist damit geschlossen → 1.4.1.
+Android 1.4 (versionCode 7) ging am 04.09. ebenfalls live (Play-Review über Nacht).
+
+- 🐛 **„Alles durchgeswipet" obwohl nichts geswiped (iOS gemeldet)**: TMDB drosselt beim
+  App-Start (Trending + Deck ≈ 80 Requests → HTTP 429). `getProviders` (seit 1.3) gab bei
+  Fehlern `[]` zurück *und cachte das*, `discoverMovies` warf Titel ohne Anbieter weg, und
+  der Nachlade-Effekt griff nur bei `filtered.length > 0` → Deck dauerhaft leer bis Neustart.
+  Fix: `tmdbFetch`-Wrapper (max. 6 parallel, 429/5xx-Retry mit Backoff + Retry-After),
+  `getProviders` liefert bei Fehler `null` (nie gecacht), Discover fällt auf die gewählten
+  Anbieter zurück statt zu verwerfen, SwipePage lädt bei leerem Deck bis zu 3× automatisch
+  nach, EmptyState hat „Neue Vorschläge laden". Unter künstlicher 50 %-Drosselung verifiziert.
+- ✨ **Trending-Titel direkt bewerten**: Aus dem Detail-Modal der „Neu & Trending"-Leiste
+  geht jetzt Watchlist / Favorit / Gesehen (gleiche Login- und Ad-Logik wie im Deck);
+  Titel auf der Watchlist bekommen ein grünes Häkchen in der Leiste.
+
+Store-Text („Was ist neu"): *Behebt einen Fehler, bei dem keine neuen Titel mehr geladen wurden.
+Trending-Titel lassen sich jetzt direkt auf die Watchlist setzen.* (Android zusätzlich die
+1.4-Punkte unten, da dort 1.4 nie veröffentlicht wurde.)
+
+---
+
+## v1.4 (Android versionCode 7, iOS Build 31 — beide live seit 2026-09-04/05) — 2026-09-04
+
+**Wartungs-Release** (kein Nutzer-Bug — Crashlytics iOS/Android seit 1.3 ohne Absturz):
+
+- 🔒 **Sicherheits-Audit**: 12 → **0** Schwachstellen in Produktions-Dependencies.
+  Relevant war nur `react-router-dom` 7.14.0 → 7.18.3 (Open-Redirect/XSS-Klasse);
+  Rest war Build-Tooling. `@capacitor/cli` von `dependencies` nach `devDependencies`.
+- ⬆️ **Dependencies (Minor)**: Capacitor Core/iOS/Android 8.3 → 8.5.1, Local-Notifications
+  8.2 → 8.3.1, @capacitor-firebase/* 8.2 → 8.5.1, Firebase 12.12 → 12.18, AdMob-Plugin 8.0 → 8.1,
+  FontAwesome/Tailwind/Vite-Tooling aktuell. **Nicht** angefasst (Major): RevenueCat 12→13,
+  framer-motion 12→13.
+- 🤖 **Android 16 / Play-Console-Warnung behoben**: Veraltetes `windowOptOutEdgeToEdgeEnforcement`
+  (ab targetSdk 36 wirkungslos) und deprecated `setStatusBarColor`/`setNavigationBarColor`
+  entfernt; helle Bar-Icons jetzt via `WindowInsetsControllerCompat`. Auf Android-16-Emulator
+  verifiziert: Layout unverändert korrekt.
+- 🛠️ **Build-Fix**: `@capacitor-community/admob` nutzt `proguard-android.txt`, das AGP 9.x hart
+  ablehnt → `scripts/patch-admob-proguard.cjs` patcht das per `postinstall` (siehe CLAUDE.md).
+- 📄 `website/app-ads.txt` (AdMob-Verifizierung) ins Repo aufgenommen.
+- 🎨 **Swipe-Buttons vereinheitlicht** (`SwipeActionButton`): fünf identische Kreise mit
+  getöntem Ring, Beschriftung darunter, Farbe = Swipe-Richtung (rot Nope, blau Gesehen,
+  lila Favorit, grün Like, grau Zurück). Vorher drei Größen und zwei Stile → wirkte unruhig.
+  Legende im Swipe-Tutorial angepasst.
+
+Store-Text („Was ist neu"): *Übersichtlichere Swipe-Buttons mit Beschriftung, Stabilitäts- und
+Sicherheitsupdate, verbesserte Kompatibilität mit Android 16.*
+
+---
+
 ## v1.3 (Android versionCode 6, iOS Build 30) — 2026-07-08
 
 **Bugfix- & Stabilitäts-Release** (nach Code-Review, siehe OPTIMIZATION-PLAN.md):
