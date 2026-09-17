@@ -1,16 +1,27 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFire, faStar } from '@fortawesome/free-solid-svg-icons';
-import type { Movie } from '../types';
+import { faFire, faStar, faCheck } from '@fortawesome/free-solid-svg-icons';
+import type { Movie, SwipeDirection } from '../types';
 import { useStore } from '../store/useStore';
 import { getTrendingThisWeek } from '../services/tmdb';
 import { MovieDetailModal } from './MovieDetailModal';
 
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 
-export function TrendingRail() {
+interface TrendingRailProps {
+  /**
+   * Wird gesetzt, wenn Trending-Titel direkt bewertet werden dürfen
+   * (Watchlist / Favorit / Gesehen aus dem Detail-Modal). Ohne Handler
+   * zeigt das Modal nur Infos.
+   */
+  onSwipe?: (direction: SwipeDirection, movie: Movie) => void;
+}
+
+export function TrendingRail({ onSwipe }: TrendingRailProps = {}) {
   const trendingMovies = useStore((s) => s.trendingMovies);
+  const watchlist = useStore((s) => s.watchlist);
+  const watchlistIds = new Set(watchlist.map((w) => w.movie.id));
   const trendingLastFetch = useStore((s) => s.trendingLastFetch);
   const trendingProvidersKey = useStore((s) => s.trendingProvidersKey);
   const setTrendingMovies = useStore((s) => s.setTrendingMovies);
@@ -101,6 +112,15 @@ export function TrendingRail() {
                     />
                     {movie.rating.toFixed(1)}
                   </div>
+                  {/* Schon auf der Watchlist */}
+                  {watchlistIds.has(movie.id) && (
+                    <div
+                      className="absolute left-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] text-white shadow"
+                      aria-label="Auf deiner Watchlist"
+                    >
+                      <FontAwesomeIcon icon={faCheck} />
+                    </div>
+                  )}
                 </motion.button>
               ))
             )}
@@ -111,7 +131,12 @@ export function TrendingRail() {
       <MovieDetailModal
         movie={selectedMovie}
         onClose={() => setSelectedMovie(null)}
-        hideActions
+        onSwipe={
+          onSwipe && selectedMovie
+            ? (direction) => onSwipe(direction, selectedMovie)
+            : undefined
+        }
+        hideActions={!onSwipe}
       />
     </>
   );

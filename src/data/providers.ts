@@ -13,6 +13,7 @@ export const providers: Provider[] = [
     color: '#E50914',
     logo: `${TMDB_IMAGE_BASE}${LOGO_SIZE}/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg`,
     tmdbId: 8,
+    tmdbAliases: [1796], // „Netflix Standard with Ads"
     searchUrl: (t) => `https://www.netflix.com/search?q=${enc(t)}`,
   },
   {
@@ -29,6 +30,7 @@ export const providers: Provider[] = [
     color: '#00A8E1',
     logo: `${TMDB_IMAGE_BASE}${LOGO_SIZE}/pvske1MyAoymrs5bguRfVqYiM9a.jpg`,
     tmdbId: 9,
+    tmdbAliases: [2100], // „Amazon Prime Video with Ads"
     searchUrl: (t) => `https://www.amazon.de/s?k=${enc(t)}&i=instant-video`,
   },
   {
@@ -52,7 +54,10 @@ export const providers: Provider[] = [
     name: 'RTL+',
     color: '#E4003A',
     logo: `${TMDB_IMAGE_BASE}${LOGO_SIZE}/jmR0t1kjzHcyV7raynzMbF87J9d.jpg`,
-    tmdbId: 298,
+    // TMDB/JustWatch hat RTL+ von 298 auf 2750 umgezogen (09/2026: 298 ist
+    // nicht mehr in der DE-Anbieterliste, liefert nur noch 4 Titel).
+    tmdbId: 2750,
+    tmdbAliases: [298],
     searchUrl: (t) => `https://plus.rtl.de/suche?q=${enc(t)}`,
   },
   {
@@ -60,7 +65,10 @@ export const providers: Provider[] = [
     name: 'Joyn',
     color: '#1EE494',
     logo: `${TMDB_IMAGE_BASE}${LOGO_SIZE}/3tKojIkk9QpkDUeU8HgpHQ9Jb2v.jpg`,
+    // Joyn-Titel stehen bei TMDB unter „ads"/„free", nicht unter „flatrate"
+    // → tmdb.ts wertet alle drei Monetarisierungsarten aus. 421 = Joyn Plus.
     tmdbId: 304,
+    tmdbAliases: [421],
     searchUrl: (t) => `https://www.joyn.de/suche?search=${enc(t)}`,
   },
   {
@@ -68,7 +76,11 @@ export const providers: Provider[] = [
     name: 'Magenta TV',
     color: '#E20074',
     logo: `${TMDB_IMAGE_BASE}${LOGO_SIZE}/nCsFBTEmlCMc5NA4fwPuluTz6AO.jpg`,
-    tmdbId: 178,
+    // ACHTUNG: 178 („MagentaTV") ist bei TMDB der Kauf-/Leih-Store (rent/buy,
+    // ~7.000 Titel) — das Abo heißt „Magenta TV+" und hat die ID 2412.
+    // 178 NICHT als Alias führen: es flutet das Deck mit Kauf-Titeln, die
+    // anschließend mangels Flatrate-Treffer wieder aussortiert werden.
+    tmdbId: 2412,
     searchUrl: (t) => `https://www.magentatv.de/suche?q=${enc(t)}`,
   },
   {
@@ -101,12 +113,19 @@ export async function openProvider(provider: Provider, title: string): Promise<v
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
+/**
+ * TMDB-IDs aller gewählten Anbieter inkl. Aliase (Werbe-Tarife, alte IDs).
+ * TMDB/JustWatch zieht Anbieter-IDs gelegentlich um — deshalb Aliase statt
+ * einer einzelnen ID (siehe RTL+ 298 → 2750, MagentaTV 178 → 2412).
+ */
 export function getTmdbProviderIds(selectedIds: string[]): number[] {
   return providers
     .filter((p) => selectedIds.includes(p.id))
-    .map((p) => p.tmdbId);
+    .flatMap((p) => [p.tmdbId, ...(p.tmdbAliases ?? [])]);
 }
 
 export function findProviderByTmdbId(tmdbId: number): Provider | undefined {
-  return providers.find((p) => p.tmdbId === tmdbId);
+  return providers.find(
+    (p) => p.tmdbId === tmdbId || (p.tmdbAliases ?? []).includes(tmdbId)
+  );
 }

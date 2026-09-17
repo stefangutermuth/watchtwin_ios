@@ -1,5 +1,93 @@
 # WatchTwin — App Store Release Notes
 
+## v1.4.2 (Android versionCode 9, iOS Build 33) — 2026-09-17
+
+**Hotfix: leeres Deck für Nutzer mit Joyn, Magenta TV oder RTL+** (auch 1.4.1 betroffen).
+
+Ursache war keine API-Einschränkung, sondern umgezogene Anbieter-Daten bei TMDB/JustWatch:
+
+| Anbieter | alt (App) | heute bei TMDB | Wirkung |
+|---|---|---|---|
+| RTL+ | 298 | **2750** (298 nicht mehr in DE-Liste) | Katalog 4 Titel statt 683 |
+| Magenta TV | 178 | 178 = Kauf-/Leih-Store; Abo = **Magenta TV+ 2412** | 7.000 Kauf-Titel im Deck, 0 % nutzbar |
+| Joyn | 304 | Titel unter **`ads`/`free`** statt `flatrate` | 0 % nutzbar |
+
+Fix: `Provider.tmdbAliases` (1796 Netflix mit Werbung, 2100 Prime mit Werbung, 421 Joyn Plus,
+298 RTL+ alt), Discover/TotalPages mit `flatrate|free|ads`, `getProviders` wertet alle drei
+Monetarisierungsarten aus. Live-Simulation (3 Zufalls-Batches je Fall, nutzbare Titel):
+nur Joyn 0 % → 100 %, nur Magenta 0 % → 100 %, nur RTL+ 4 → 683 Titel, Mix
+Netflix/Disney+/WOW/Joyn/Magenta 76 % → 100 %, nur Netflix unverändert 100 %.
+
+**Zusätzlich (Build-Zwang): `@revenuecat/purchases-capacitor` 12.3.2 → 13.6.0.** Seit dem Umstieg
+auf Xcode 27 / macOS 27 kompiliert das an 12.3.2 gepinnte `purchases-ios` 5.67.1 nicht mehr
+(„ambiguous use of init(stringRepresentation:)" in `PaywallColor`/`CustomerCenterConfigData`);
+12.3.2 ist die letzte 12er-Version, ein Xcode 26 ist nicht mehr installiert. 13.0.0-Breaking-Changes:
+Android minSdk 23 (wir: 24), Billing Library 8.3, kein Restore mehr für *konsumierte* Einmalkäufe —
+`watchtwin_premium_lifetime` ist Non-consumable, daher nicht betroffen. Keine API-Umbenennungen;
+`purchases.ts` unverändert. ⚠️ Kauf + „Käufe wiederherstellen" vor Freigabe per TestFlight prüfen.
+
+Diagnose-Vorgehen für künftige ID-Drift: pro Anbieter `discover` (total_results) abfragen und
+für ~10 Stichproben `/{movie|tv}/{id}/watch/providers` prüfen, unter welchem Schlüssel
+(`flatrate`/`free`/`ads`/`rent`/`buy`) die Anbieter-ID auftaucht; zusätzlich
+`/watch/providers/movie?watch_region=DE` auf den aktuellen Namen/ID prüfen.
+
+Store-Text („Was ist neu"): *Behebt ein Problem, durch das bei Joyn, Magenta TV und RTL+ keine
+Titel mehr angezeigt wurden. RTL+ und Joyn zeigen jetzt wieder den vollen Katalog.*
+
+---
+
+## v1.4.1 (Android versionCode 8, iOS Build 32) — 2026-09-05
+
+**Bugfix-Release** direkt nach 1.4. Apple hatte 1.4 (Build 31) bereits über Nacht genehmigt und
+veröffentlicht (live seit 05.09., 00:02 Uhr) — der Versionszug 1.4 ist damit geschlossen → 1.4.1.
+Android 1.4 (versionCode 7) ging am 04.09. ebenfalls live (Play-Review über Nacht).
+
+- 🐛 **„Alles durchgeswipet" obwohl nichts geswiped (iOS gemeldet)**: TMDB drosselt beim
+  App-Start (Trending + Deck ≈ 80 Requests → HTTP 429). `getProviders` (seit 1.3) gab bei
+  Fehlern `[]` zurück *und cachte das*, `discoverMovies` warf Titel ohne Anbieter weg, und
+  der Nachlade-Effekt griff nur bei `filtered.length > 0` → Deck dauerhaft leer bis Neustart.
+  Fix: `tmdbFetch`-Wrapper (max. 6 parallel, 429/5xx-Retry mit Backoff + Retry-After),
+  `getProviders` liefert bei Fehler `null` (nie gecacht), Discover fällt auf die gewählten
+  Anbieter zurück statt zu verwerfen, SwipePage lädt bei leerem Deck bis zu 3× automatisch
+  nach, EmptyState hat „Neue Vorschläge laden". Unter künstlicher 50 %-Drosselung verifiziert.
+- ✨ **Trending-Titel direkt bewerten**: Aus dem Detail-Modal der „Neu & Trending"-Leiste
+  geht jetzt Watchlist / Favorit / Gesehen (gleiche Login- und Ad-Logik wie im Deck);
+  Titel auf der Watchlist bekommen ein grünes Häkchen in der Leiste.
+
+Store-Text („Was ist neu"): *Behebt einen Fehler, bei dem keine neuen Titel mehr geladen wurden.
+Trending-Titel lassen sich jetzt direkt auf die Watchlist setzen.* (Android zusätzlich die
+1.4-Punkte unten, da dort 1.4 nie veröffentlicht wurde.)
+
+---
+
+## v1.4 (Android versionCode 7, iOS Build 31 — beide live seit 2026-09-04/05) — 2026-09-04
+
+**Wartungs-Release** (kein Nutzer-Bug — Crashlytics iOS/Android seit 1.3 ohne Absturz):
+
+- 🔒 **Sicherheits-Audit**: 12 → **0** Schwachstellen in Produktions-Dependencies.
+  Relevant war nur `react-router-dom` 7.14.0 → 7.18.3 (Open-Redirect/XSS-Klasse);
+  Rest war Build-Tooling. `@capacitor/cli` von `dependencies` nach `devDependencies`.
+- ⬆️ **Dependencies (Minor)**: Capacitor Core/iOS/Android 8.3 → 8.5.1, Local-Notifications
+  8.2 → 8.3.1, @capacitor-firebase/* 8.2 → 8.5.1, Firebase 12.12 → 12.18, AdMob-Plugin 8.0 → 8.1,
+  FontAwesome/Tailwind/Vite-Tooling aktuell. **Nicht** angefasst (Major): RevenueCat 12→13,
+  framer-motion 12→13.
+- 🤖 **Android 16 / Play-Console-Warnung behoben**: Veraltetes `windowOptOutEdgeToEdgeEnforcement`
+  (ab targetSdk 36 wirkungslos) und deprecated `setStatusBarColor`/`setNavigationBarColor`
+  entfernt; helle Bar-Icons jetzt via `WindowInsetsControllerCompat`. Auf Android-16-Emulator
+  verifiziert: Layout unverändert korrekt.
+- 🛠️ **Build-Fix**: `@capacitor-community/admob` nutzt `proguard-android.txt`, das AGP 9.x hart
+  ablehnt → `scripts/patch-admob-proguard.cjs` patcht das per `postinstall` (siehe CLAUDE.md).
+- 📄 `website/app-ads.txt` (AdMob-Verifizierung) ins Repo aufgenommen.
+- 🎨 **Swipe-Buttons vereinheitlicht** (`SwipeActionButton`): fünf identische Kreise mit
+  getöntem Ring, Beschriftung darunter, Farbe = Swipe-Richtung (rot Nope, blau Gesehen,
+  lila Favorit, grün Like, grau Zurück). Vorher drei Größen und zwei Stile → wirkte unruhig.
+  Legende im Swipe-Tutorial angepasst.
+
+Store-Text („Was ist neu"): *Übersichtlichere Swipe-Buttons mit Beschriftung, Stabilitäts- und
+Sicherheitsupdate, verbesserte Kompatibilität mit Android 16.*
+
+---
+
 ## v1.3 (Android versionCode 6, iOS Build 30) — 2026-07-08
 
 **Bugfix- & Stabilitäts-Release** (nach Code-Review, siehe OPTIMIZATION-PLAN.md):

@@ -30,11 +30,11 @@ export function SwipeTutorial({ compact = false }: Props) {
           animate={{ y: [-2, -6, -2] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <span className="rounded-full bg-gradient-to-br from-wt-purple to-wt-pink px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-lg shadow-wt-pink/40">
+          <span className="rounded-full bg-wt-purple-light/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-violet-300 ring-1 ring-wt-purple-light/80">
             <FontAwesomeIcon icon={faStar} className="mr-0.5 text-[8px]" />
-            Top
+            Favorit
           </span>
-          <FontAwesomeIcon icon={faArrowUp} className="text-[10px] text-wt-pink" />
+          <FontAwesomeIcon icon={faArrowUp} className="text-[10px] text-violet-300" />
         </motion.div>
 
         {/* LEFT — Nope */}
@@ -43,11 +43,11 @@ export function SwipeTutorial({ compact = false }: Props) {
           animate={{ x: [0, -5, 0] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
         >
-          <span className="rounded-full bg-wt-card px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-500 ring-1 ring-red-500/40 shadow-md">
+          <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-400 ring-1 ring-red-500/70">
             <FontAwesomeIcon icon={faXmark} className="mr-0.5" />
             Nope
           </span>
-          <FontAwesomeIcon icon={faArrowLeft} className="text-[10px] text-red-500" />
+          <FontAwesomeIcon icon={faArrowLeft} className="text-[10px] text-red-400" />
         </motion.div>
 
         {/* RIGHT — Like */}
@@ -57,7 +57,7 @@ export function SwipeTutorial({ compact = false }: Props) {
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
         >
           <FontAwesomeIcon icon={faArrowRight} className="text-[10px] text-emerald-400" />
-          <span className="rounded-full bg-gradient-to-br from-green-400 to-emerald-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-md shadow-emerald-500/40">
+          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-400 ring-1 ring-emerald-500/70">
             <FontAwesomeIcon icon={faHeart} className="mr-0.5" />
             Like
           </span>
@@ -69,8 +69,8 @@ export function SwipeTutorial({ compact = false }: Props) {
           animate={{ y: [2, 6, 2] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
         >
-          <FontAwesomeIcon icon={faArrowDown} className="text-[10px] text-sky-400" />
-          <span className="rounded-full bg-wt-card px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-sky-400 ring-1 ring-sky-400/40 shadow-md">
+          <FontAwesomeIcon icon={faArrowDown} className="text-[10px] text-blue-300" />
+          <span className="rounded-full bg-blue-400/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-blue-300 ring-1 ring-blue-400/70">
             <FontAwesomeIcon icon={faEye} className="mr-0.5" />
             Gesehen
           </span>
@@ -91,31 +91,32 @@ export function SwipeTutorial({ compact = false }: Props) {
 
       {/* Legende — 2x2 Grid */}
       <div className="mt-4 w-full grid grid-cols-2 gap-2">
+        {/* Farben identisch mit SwipeActionButton (Farbe = Swipe-Richtung) */}
         <LegendCell
           icon={faHeart}
           color="text-emerald-400"
-          ringColor="ring-emerald-400/30"
+          ringColor="ring-emerald-500/70 bg-emerald-500/15"
           direction="→ Rechts"
           label="Like"
         />
         <LegendCell
           icon={faXmark}
-          color="text-red-500"
-          ringColor="ring-red-500/30"
+          color="text-red-400"
+          ringColor="ring-red-500/70 bg-red-500/15"
           direction="← Links"
           label="Nope"
         />
         <LegendCell
           icon={faStar}
-          color="text-wt-pink"
-          ringColor="ring-wt-pink/30"
+          color="text-violet-300"
+          ringColor="ring-wt-purple-light/80 bg-wt-purple-light/20"
           direction="↑ Hoch"
-          label="Top-Favorit"
+          label="Favorit"
         />
         <LegendCell
           icon={faEye}
-          color="text-sky-400"
-          ringColor="ring-sky-400/30"
+          color="text-blue-300"
+          ringColor="ring-blue-400/70 bg-blue-400/15"
           direction="↓ Runter"
           label="Gesehen"
         />
@@ -144,7 +145,7 @@ function LegendCell({
   return (
     <div className="flex items-center gap-2 rounded-xl bg-wt-card/60 p-2">
       <div
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-wt-surface ${color} ring-1 ${ringColor}`}
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${color} ring-1 ${ringColor}`}
       >
         <FontAwesomeIcon icon={icon} className="text-xs" />
       </div>
