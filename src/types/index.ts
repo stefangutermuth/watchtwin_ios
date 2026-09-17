@@ -4,6 +4,8 @@ export interface Provider {
   color: string;
   logo: string;
   tmdbId: number;
+  /** Weitere TMDB-IDs desselben Anbieters (Werbe-Tarife, umgezogene IDs). */
+  tmdbAliases?: number[];
   /** Builds a search URL for this provider with the given title. */
   searchUrl?: (title: string) => string;
 }

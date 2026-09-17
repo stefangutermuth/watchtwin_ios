@@ -18,6 +18,11 @@ if (!API_TOKEN) {
 const BASE_URL = 'https://api.themoviedb.org/3';
 const WATCH_REGION = 'DE';
 const LANGUAGE = 'de-DE';
+// „Im Abo/ohne Zusatzkosten schaubar": Abo (flatrate) + kostenlos (free) +
+// werbefinanziert (ads). Joyn z. B. führt TMDB komplett unter „ads" — nur
+// „flatrate" auszuwerten ließ dessen Titel durchs Raster fallen (Bug 09/2026).
+const MONETIZATION = 'flatrate|free|ads';
+const MONETIZATION_KEYS = ['flatrate', 'free', 'ads'] as const;
 
 const headers = {
   Authorization: `Bearer ${API_TOKEN}`,
@@ -142,6 +147,8 @@ interface WatchProviderResult {
     DE?: {
       link?: string;
       flatrate?: Array<{ provider_id: number }>;
+      free?: Array<{ provider_id: number }>;
+      ads?: Array<{ provider_id: number }>;
     };
   };
 }
@@ -194,12 +201,18 @@ async function getProviders(
       return null;
     }
     const data: WatchProviderResult = await res.json();
-    const flatrate = data.results?.DE?.flatrate ?? [];
+    const de = data.results?.DE;
+    const offers = MONETIZATION_KEYS.flatMap((k) => de?.[k] ?? []);
 
-    const result = flatrate
-      .map((p) => findProviderByTmdbId(p.provider_id))
-      .filter(Boolean)
-      .map((p) => p!.id);
+    // Auf App-Anbieter mappen (inkl. Alias-IDs), Duplikate entfernen
+    const result = [
+      ...new Set(
+        offers
+          .map((p) => findProviderByTmdbId(p.provider_id))
+          .filter(Boolean)
+          .map((p) => p!.id)
+      ),
+    ];
 
     providersCache.set(cacheKey, result);
     return result;
@@ -237,14 +250,14 @@ async function getTotalPages(
   const moviePromise = skipMovie
     ? Promise.resolve({ total_pages: 0 })
     : tmdbFetch(
-        `${BASE_URL}/discover/movie?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=flatrate&page=1&vote_count.gte=10${langFilter}${movieGenreParam}`,
+        `${BASE_URL}/discover/movie?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=${MONETIZATION}&page=1&vote_count.gte=10${langFilter}${movieGenreParam}`,
         { headers }
       ).then((r) => r.json());
 
   const tvPromise = skipTv
     ? Promise.resolve({ total_pages: 0 })
     : tmdbFetch(
-        `${BASE_URL}/discover/tv?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=flatrate&page=1&vote_count.gte=10${langFilter}${tvGenreParam}`,
+        `${BASE_URL}/discover/tv?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=${MONETIZATION}&page=1&vote_count.gte=10${langFilter}${tvGenreParam}`,
         { headers }
       ).then((r) => r.json());
 
@@ -427,14 +440,14 @@ export async function discoverMovies(
   const moviePromise = skipMovie || totalPages.movie === 0
     ? Promise.resolve({ results: [] as TmdbDiscoverResult[] })
     : tmdbFetch(
-        `${BASE_URL}/discover/movie?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=flatrate&sort_by=popularity.desc&page=${randomMoviePage}&vote_count.gte=10${langFilter}${movieGenre.param}`,
+        `${BASE_URL}/discover/movie?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=${MONETIZATION}&sort_by=popularity.desc&page=${randomMoviePage}&vote_count.gte=10${langFilter}${movieGenre.param}`,
         { headers }
       ).then((r) => r.json());
 
   const tvPromise = skipTv || totalPages.tv === 0
     ? Promise.resolve({ results: [] as TmdbDiscoverResult[] })
     : tmdbFetch(
-        `${BASE_URL}/discover/tv?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=flatrate&sort_by=popularity.desc&page=${randomTvPage}&vote_count.gte=10${langFilter}${tvGenre.param}`,
+        `${BASE_URL}/discover/tv?language=${LANGUAGE}&watch_region=${WATCH_REGION}&with_watch_providers=${providerParam}&with_watch_monetization_types=${MONETIZATION}&sort_by=popularity.desc&page=${randomTvPage}&vote_count.gte=10${langFilter}${tvGenre.param}`,
         { headers }
       ).then((r) => r.json());
 
