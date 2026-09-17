@@ -18,6 +18,14 @@ Monetarisierungsarten aus. Live-Simulation (3 Zufalls-Batches je Fall, nutzbare 
 nur Joyn 0 % → 100 %, nur Magenta 0 % → 100 %, nur RTL+ 4 → 683 Titel, Mix
 Netflix/Disney+/WOW/Joyn/Magenta 76 % → 100 %, nur Netflix unverändert 100 %.
 
+**Zusätzlich (Build-Zwang): `@revenuecat/purchases-capacitor` 12.3.2 → 13.6.0.** Seit dem Umstieg
+auf Xcode 27 / macOS 27 kompiliert das an 12.3.2 gepinnte `purchases-ios` 5.67.1 nicht mehr
+(„ambiguous use of init(stringRepresentation:)" in `PaywallColor`/`CustomerCenterConfigData`);
+12.3.2 ist die letzte 12er-Version, ein Xcode 26 ist nicht mehr installiert. 13.0.0-Breaking-Changes:
+Android minSdk 23 (wir: 24), Billing Library 8.3, kein Restore mehr für *konsumierte* Einmalkäufe —
+`watchtwin_premium_lifetime` ist Non-consumable, daher nicht betroffen. Keine API-Umbenennungen;
+`purchases.ts` unverändert. ⚠️ Kauf + „Käufe wiederherstellen" vor Freigabe per TestFlight prüfen.
+
 Diagnose-Vorgehen für künftige ID-Drift: pro Anbieter `discover` (total_results) abfragen und
 für ~10 Stichproben `/{movie|tv}/{id}/watch/providers` prüfen, unter welchem Schlüssel
 (`flatrate`/`free`/`ads`/`rent`/`buy`) die Anbieter-ID auftaucht; zusätzlich
