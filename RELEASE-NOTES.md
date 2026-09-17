@@ -1,5 +1,33 @@
 # WatchTwin — App Store Release Notes
 
+## v1.4.2 (Android versionCode 9, iOS Build 33) — 2026-09-17
+
+**Hotfix: leeres Deck für Nutzer mit Joyn, Magenta TV oder RTL+** (auch 1.4.1 betroffen).
+
+Ursache war keine API-Einschränkung, sondern umgezogene Anbieter-Daten bei TMDB/JustWatch:
+
+| Anbieter | alt (App) | heute bei TMDB | Wirkung |
+|---|---|---|---|
+| RTL+ | 298 | **2750** (298 nicht mehr in DE-Liste) | Katalog 4 Titel statt 683 |
+| Magenta TV | 178 | 178 = Kauf-/Leih-Store; Abo = **Magenta TV+ 2412** | 7.000 Kauf-Titel im Deck, 0 % nutzbar |
+| Joyn | 304 | Titel unter **`ads`/`free`** statt `flatrate` | 0 % nutzbar |
+
+Fix: `Provider.tmdbAliases` (1796 Netflix mit Werbung, 2100 Prime mit Werbung, 421 Joyn Plus,
+298 RTL+ alt), Discover/TotalPages mit `flatrate|free|ads`, `getProviders` wertet alle drei
+Monetarisierungsarten aus. Live-Simulation (3 Zufalls-Batches je Fall, nutzbare Titel):
+nur Joyn 0 % → 100 %, nur Magenta 0 % → 100 %, nur RTL+ 4 → 683 Titel, Mix
+Netflix/Disney+/WOW/Joyn/Magenta 76 % → 100 %, nur Netflix unverändert 100 %.
+
+Diagnose-Vorgehen für künftige ID-Drift: pro Anbieter `discover` (total_results) abfragen und
+für ~10 Stichproben `/{movie|tv}/{id}/watch/providers` prüfen, unter welchem Schlüssel
+(`flatrate`/`free`/`ads`/`rent`/`buy`) die Anbieter-ID auftaucht; zusätzlich
+`/watch/providers/movie?watch_region=DE` auf den aktuellen Namen/ID prüfen.
+
+Store-Text („Was ist neu"): *Behebt ein Problem, durch das bei Joyn, Magenta TV und RTL+ keine
+Titel mehr angezeigt wurden. RTL+ und Joyn zeigen jetzt wieder den vollen Katalog.*
+
+---
+
 ## v1.4.1 (Android versionCode 8, iOS Build 32) — 2026-09-05
 
 **Bugfix-Release** direkt nach 1.4. Apple hatte 1.4 (Build 31) bereits über Nacht genehmigt und
