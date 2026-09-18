@@ -14,6 +14,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    // MARK: - UIScene-Lebenszyklus (Pflicht ab iOS-27-SDK)
+    //
+    // Apps, die mit Xcode 27 gebaut sind, MÜSSEN den Scene-Lebenszyklus nutzen —
+    // sonst beendet iOS 27 die App direkt beim Start
+    // (UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption, SIGTRAP).
+    // Das war der Start-Absturz von 1.4.2 am 18.09.2026. Vorgehen nach
+    // https://capacitorjs.com/docs/updating/8-5 ; Info.plist enthält das
+    // passende UIApplicationSceneManifest.
+    func application(_ application: UIApplication,
+                     configurationForConnecting connectingSceneSession: UISceneSession,
+                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let config = UISceneConfiguration(name: "Default Configuration",
+                                          sessionRole: connectingSceneSession.role)
+        config.delegateClass = SceneDelegate.self
+        return config
+    }
+
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
@@ -49,4 +66,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
+}
+
+// MARK: - SceneDelegate
+//
+// Bewusst in dieser Datei statt in einer eigenen SceneDelegate.swift, damit
+// kein Eingriff ins Xcode-Projekt (pbxproj) nötig ist. Klassenname muss zu
+// Info.plist passen: UISceneDelegateClassName = $(PRODUCT_MODULE_NAME).SceneDelegate
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    var window: UIWindow?
+
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
+               options connectionOptions: UIScene.ConnectionOptions) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        window = UIWindow(windowScene: windowScene)
+        window?.rootViewController = CAPBridgeViewController()
+        window?.makeKeyAndVisible()
+        // Capacitor-Proxy: liefert Deep-Links/Universal-Links beim Kaltstart an die Plugins
+        SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
+    }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        // Custom-URL-Schemes (Google-Sign-In-Rückkehr, watchtwin://) laufen ab
+        // Scene-Lifecycle hier statt in AppDelegate.application(_:open:options:)
+        SceneDelegateProxy.shared.scene(scene, openURLContexts: URLContexts)
+    }
+
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        SceneDelegateProxy.shared.scene(scene, continue: userActivity)
+    }
 }

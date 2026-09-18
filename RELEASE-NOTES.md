@@ -1,5 +1,23 @@
 # WatchTwin — App Store Release Notes
 
+## v1.4.3 (iOS only, Build 34) — 2026-09-18
+
+**Hotfix: iOS 1.4.2 stürzt auf iOS 27 direkt beim Start ab.**
+
+Ursache (im iOS-27-Simulator reproduziert, Crash-Report `App-2026-09-18-213210.ips`):
+`UIKitCore ___UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption` → SIGTRAP.
+Apps, die mit dem iOS-27-SDK (Xcode 27) gebaut sind, müssen den UIScene-Lebenszyklus nutzen;
+das Capacitor-Template hatte nur den klassischen AppDelegate. 1.4.2 war der erste Xcode-27-Build
+(wegen des RevenueCat-Zwangsupdates), daher trat es genau jetzt auf. Crashlytics meldete nichts,
+weil der Abbruch vor jeder App-Initialisierung passiert; iOS-26-Geräte/-Simulatoren sind nicht betroffen.
+
+Fix nach https://capacitorjs.com/docs/updating/8-5: `UIApplicationSceneManifest` in `Info.plist`,
+`configurationForConnecting` + `SceneDelegate` (mit `SceneDelegateProxy`) in `AppDelegate.swift`.
+Verifiziert: Release-Build startet auf iOS-27- und iOS-26.5-Simulator, Custom-URL-Scheme
+(`watchtwin://`) kommt über die Scene an. Android unverändert (1.4.2 / versionCode 9).
+
+Store-Text („Was ist neu"): *Behebt einen Absturz beim Start unter iOS 27.*
+
 ## v1.4.2 (Android versionCode 9, iOS Build 33) — 2026-09-17
 
 **Hotfix: leeres Deck für Nutzer mit Joyn, Magenta TV oder RTL+** (auch 1.4.1 betroffen).

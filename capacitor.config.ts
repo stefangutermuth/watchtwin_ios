@@ -17,7 +17,7 @@ const config: CapacitorConfig = {
     // nach jedem App-Update und invalidiert Bundle-Cache.
     // Vor jedem Release auf die neue Version updaten.
     // Ergänzt versionCacheBust.ts als zweite Sicherheitslinie.
-    appendUserAgent: 'WatchTwin/1.4.2',
+    appendUserAgent: 'WatchTwin/1.4.3',
   },
   android: {
     appendUserAgent: 'WatchTwin/1.4.2',
