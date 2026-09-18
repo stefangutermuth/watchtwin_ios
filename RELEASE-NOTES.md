@@ -2,6 +2,8 @@
 
 ## v1.4.3 (iOS only, Build 34) — 2026-09-18
 
+Status: 18.09. eingereicht (Build 34, automatische Freigabe), beschleunigte Prüfung beantragt.
+
 **Hotfix: iOS 1.4.2 stürzt auf iOS 27 direkt beim Start ab.**
 
 Ursache (im iOS-27-Simulator reproduziert, Crash-Report `App-2026-09-18-213210.ips`):
@@ -19,6 +21,8 @@ Verifiziert: Release-Build startet auf iOS-27- und iOS-26.5-Simulator, Custom-UR
 Store-Text („Was ist neu"): *Behebt einen Absturz beim Start unter iOS 27.*
 
 ## v1.4.2 (Android versionCode 9, iOS Build 33) — 2026-09-17
+
+Status: iOS Build 33 live seit 18.09. (Start-Crash auf iOS 27 → 1.4.3); Android 1.4.2 (9) live seit 17.09. 21:49 (Play-Review sofort, Rollout 100 %).
 
 **Hotfix: leeres Deck für Nutzer mit Joyn, Magenta TV oder RTL+** (auch 1.4.1 betroffen).
 
