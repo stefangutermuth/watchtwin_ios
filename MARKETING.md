@@ -1,0 +1,96 @@
+# MARKETING.md — App-Marketing WatchTwin
+
+Stand: 20.09.2026. Diese Datei hält den aktuellen Stand von Apple Ads, ASO (App Store Optimization)
+und offenen Marketing-Aufgaben fest. Bei jeder Änderung an Kampagnen oder Store-Texten aktualisieren.
+
+## Store-Status
+
+| Plattform | Version | Status |
+|---|---|---|
+| iOS | 1.4.3 (Build 34) | seit 19.09.2026 „Bereit für Vertrieb" (Hotfix für Start-Crash auf iOS 27) |
+| Android | 1.4.2 (versionCode 9) | seit 17.09.2026 live, Rollout 100 % |
+
+## Apple Ads
+
+- Konto „WatchTwin" (Advanced-Modus), Konto-ID `24258940`, angelegt am 19.09.2026
+- Dashboard: https://app-ads.apple.com/cm/app/24258940/report
+- Juristische Person: Stefan Gutermuth, Zeitzone Europe/Berlin (nicht mehr änderbar), Währung EUR
+- Startguthaben: 100 USD Aktionsguthaben (gutgeschrieben 19.09.2026, Ablauf laut Apple-AGB begrenzt)
+- Zahlungsmethode hinterlegt; Guthaben wird vor der Karte verbraucht
+
+### Kampagne „WatchTwin DE Suche - Test Wochenende"
+
+Kampagnen-ID `2144710249`, Anzeigengruppe „DE Suche - Film & Serie finden" (`2151218674`).
+
+| Einstellung | Wert |
+|---|---|
+| Platzierung | Suchergebnisse im App Store |
+| Land | Deutschland, iPhone, alle Nutzer |
+| Laufzeit | 19.09.2026 bis 22.09.2026 (Verlängerung auf 24.09. optional) |
+| Tagesbudget | 14 € (ursprünglich 15 €) |
+| Gebotsstrategie | manuell, Standard-CPT 1,80 € (ursprünglich 1,12 €) |
+| Search Match | an |
+| Anzeige | Standard-Produktseite |
+
+**Keywords (Broad Match):**
+
+- Ursprünglich (19.09., Gebot 1,12 €, Beliebtheit fast überall 1/5): film finden, was schauen,
+  was soll ich schauen, filme entdecken, serien finden, filmempfehlung, serienempfehlung, film tipps,
+  serien tipps, netflix filme, streaming guide, watchlist app, filmabend, welcher film, film swipe,
+  filme swipen, film roulette, justwatch, letterboxd, film app, serien app, streaming app
+- Ergänzt (20.09., Gebot 1,80 €): streaming (3/5), filme (1/5), serien (1/5), netflix (5/5),
+  disney plus (3/5), amazon prime (4/5), kino (3/5), tv (4/5), watchlist, film
+
+### Verlauf
+
+| Datum | Ereignis |
+|---|---|
+| 19.09. 20:05 | Kampagne, Anzeigengruppe und 22 Keywords angelegt; Status „Prüfung der App ausstehend" |
+| 20.09. | Status „Laufen", aber 0 Impressions, 0 Ausgaben. Ursache: Keywords ohne Suchvolumen im App Store, Gebot zu niedrig |
+| 20.09. abends | 10 breite Keywords mit 1,80 € ergänzt, Standardgebot 1,80 €, Tagesbudget 14 € |
+
+### Ergebnisse
+
+Noch keine (Stand 20.09. abends). Berichte laufen mit bis zu 3 Stunden Verzögerung.
+
+Erwartung für den Test: Tap-Rate 5 bis 8 %, Conversion Tap → Installation 40 bis 50 %,
+Kosten pro Installation 2 bis 3,50 €. Bleibt es bei 0 Impressions, Konto prüfen
+(Kartenverifizierung, Kampagnenfreigabe), nicht weiter an Keywords drehen.
+
+### Nächste Schritte
+
+1. Zahlen je Keyword auswerten (Impressions, Taps, Installationen, CPA)
+2. Keywords ohne Impressions pausieren, mit den 5 bis 8 besten weiterlaufen
+3. Restguthaben (rund 40 €) mit 10 €/Tag aufbrauchen, danach mit echten Zahlen über eigenes Budget entscheiden
+4. Apple Ads als Hebel für Nutzerzahlen und Bewertungen sehen, nicht als Umsatzquelle
+   (Premium ist Einmalkauf, bei 2 bis 3 % Premium-Quote rechnet sich 3 € CPA nicht)
+
+## ASO — App Store Eintrag (iOS)
+
+Aktuell (Stand 19.09.2026):
+
+| Feld | Inhalt |
+|---|---|
+| Name | WatchTwin |
+| Untertitel | Swipe dich zum perfekten Film (29/30) |
+| Keywords | filme,serien,streaming,watchlist,swipe,filmempfehlung,netflix,disney,amazon,movie,tinder,was schauen (100/100) |
+| Werbetext | leer |
+| Kategorie | Entertainment / Lifestyle |
+
+Vorschlag für die nächste Version (1.4.4), noch nicht eingetragen:
+
+- Keywords (99/100): `serien,filme,watchlist,empfehlung,filmabend,netflix,disney,prime,wow,joyn,tinder,freunde,tipps,kino`
+  (swipe, streaming, movie, „was schauen" raus; Anbieter und Situation rein)
+- Untertitel: „Filme & Serien einfach swipen" (29/30), alternativ aktuellen behalten
+- Werbetext (151/170, sofort ohne Review änderbar): „Neu: Top-Highlights der Woche direkt auf die
+  Merkliste setzen. Wähle deine Streaming-Dienste und swipe nur durch Titel, die du wirklich schauen kannst."
+
+Untertitel und Keywords gehen nur mit einer neuen App-Version live, der Werbetext sofort.
+
+## Weitere kostenlose Hebel (offen)
+
+- **Rating-Prompt in der App** (nach 5. Like oder erstem Freund-Match) — größter Effekt aufs Ranking, noch nicht gebaut
+- **Screenshots mit Überschriften** statt reiner App-Screenshots (die ersten zwei entscheiden)
+- **Featuring-Nominierung** in App Store Connect („Nominierungen") bei größeren Updates
+- **In-App-Events** und **Custom Product Pages** in App Store Connect
+- **Google Play**: Store-Listing-Experimente (A/B-Test Icon/Screenshots), 4.000-Zeichen-Beschreibung für die Suche nutzen
