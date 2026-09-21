@@ -36,7 +36,14 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            // R8-Codeoptimierung + Obfuskation (Play Console 1.4.2: "DEX-Codeoptimierung
+            // unter Grenzwert – Verschleierung 2 %", Frist Februar 2027).
+            // Keep-Regeln: proguard-rules.pro (Capacitor-Consumer-Rules kommen aus
+            // @capacitor/android, Firebase/AdMob/RevenueCat/Billing bringen eigene mit).
+            // Merged Konfiguration nach dem Build prüfen:
+            //   android/app/build/outputs/mapping/release/configuration.txt
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
