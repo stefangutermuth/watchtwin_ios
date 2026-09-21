@@ -51,7 +51,29 @@ Kampagnen-ID `2144710249`, Anzeigengruppe „DE Suche - Film & Serie finden" (`2
 
 ### Ergebnisse
 
-Noch keine (Stand 20.09. abends). Berichte laufen mit bis zu 3 Stunden Verzögerung.
+Stand 21.09.2026 (Bericht „Letzte 7 Tage", Anzeigengruppe gesamt):
+
+| Ausgaben | Impressions | Taps | Installationen | Tap-Rate | Conversion | CPT | CPA |
+|---|---|---|---|---|---|---|---|
+| 25,91 € | 3.279 | 37 | 6 | 1,13 % | 16,2 % | 0,70 € | 4,32 € |
+
+Je Keyword (nur mit Impressions):
+
+| Keyword | Impressions | Taps | Installs | Ausgaben | Tap-Rate |
+|---|---|---|---|---|---|
+| justwatch | 2.461 | 17 | 3 | 12,41 € | 0,69 % |
+| streaming guide | 335 | 7 | 1 | 3,96 € | 2,09 % |
+| serien app | 213 | 5 | 1 | 4,43 € | 2,35 % |
+| film app | 138 | 2 | 0 | 1,41 € | 1,45 % |
+| letterboxd | 84 | 2 | 0 | 1,32 € | 2,38 % |
+| film finden | 36 | 3 | 0 | 1,84 € | 8,33 % |
+| filme swipen | 5 | 1 | 1 | 0,54 € | 20 % |
+| streaming app | 6 | 0 | 0 | 0 € | 0 % |
+
+Die am 20.09. ergänzten breiten Keywords (netflix, amazon prime, tv, kino, …) stehen mit 1,12 € statt
+1,80 € im Konto und hatten noch 0 Impressions. Auffällig: Tap-Rate insgesamt nur 1,1 % (Erwartung 5 bis 8 %),
+Conversion 16 % (Erwartung 40 bis 50 %) — der Store-Eintrag (Icon, Untertitel, erste Screenshots) überzeugt
+Suchende nach „justwatch" nicht. CPA 4,32 € liegt über dem Zielwert von 3,50 €.
 
 Erwartung für den Test: Tap-Rate 5 bis 8 %, Conversion Tap → Installation 40 bis 50 %,
 Kosten pro Installation 2 bis 3,50 €. Bleibt es bei 0 Impressions, Konto prüfen
