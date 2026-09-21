@@ -87,6 +87,19 @@ Kosten pro Installation 2 bis 3,50 €. Bleibt es bei 0 Impressions, Konto prüf
 4. Apple Ads als Hebel für Nutzerzahlen und Bewertungen sehen, nicht als Umsatzquelle
    (Premium ist Einmalkauf, bei 2 bis 3 % Premium-Quote rechnet sich 3 € CPA nicht)
 
+## Länderverfügbarkeit (Stand 21.09.2026)
+
+| Plattform | Verfügbar in | Downloads letzte 30 Tage |
+|---|---|---|
+| iOS | 175 Länder (weltweit) | 9 erstmalige Downloads, alle aus Deutschland (8 davon am 20.09. über Apple Ads) |
+| Android | Deutschland, Österreich, Schweiz | 3 Installationen von 1.4.2 |
+
+Fazit: Die iOS-App ist bereits weltweit freigeschaltet, bringt aber außerhalb Deutschlands null Downloads.
+Öffnen allein bringt nichts; die App ist technisch fest auf Deutschland eingestellt (`LANGUAGE = 'de-DE'`,
+`WATCH_REGION = 'DE'` in `src/services/tmdb.ts`, deutsche Anbieterliste in `src/data/providers.ts`, keine
+i18n-Schicht, alle UI-Texte hart auf Deutsch). Internationalisierung wäre ein eigenes Projekt (2 bis 3 Tage
+für Englisch + Region aus Gerät + Anbieter pro Land) und erst sinnvoll, wenn die Produktseite in DE konvertiert.
+
 ## ASO — App Store Eintrag (iOS)
 
 Aktuell (Stand 19.09.2026):
