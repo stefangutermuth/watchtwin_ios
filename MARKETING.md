@@ -26,8 +26,8 @@ Kampagnen-ID `2144710249`, Anzeigengruppe „DE Suche - Film & Serie finden" (`2
 |---|---|
 | Platzierung | Suchergebnisse im App Store |
 | Land | Deutschland, iPhone, alle Nutzer |
-| Laufzeit | 19.09.2026 bis 22.09.2026 (Verlängerung auf 24.09. optional) |
-| Tagesbudget | 14 € (ursprünglich 15 €) |
+| Laufzeit | seit 19.09.2026, kein Enddatum; Anzeigenzeitplaner Do–So 16–24 Uhr (seit 22.09.) |
+| Tagesbudget | 10 € an aktiven Tagen (ursprünglich 15 €, dann 14 €) |
 | Gebotsstrategie | manuell, Standard-CPT 1,80 € (ursprünglich 1,12 €) |
 | Search Match | an |
 | Anzeige | Standard-Produktseite |
@@ -47,7 +47,8 @@ Kampagnen-ID `2144710249`, Anzeigengruppe „DE Suche - Film & Serie finden" (`2
 |---|---|
 | 19.09. 20:05 | Kampagne, Anzeigengruppe und 22 Keywords angelegt; Status „Prüfung der App ausstehend" |
 | 20.09. | Status „Laufen", aber 0 Impressions, 0 Ausgaben. Ursache: Keywords ohne Suchvolumen im App Store, Gebot zu niedrig |
-| 20.09. abends | 10 breite Keywords mit 1,80 € ergänzt, Standardgebot 1,80 €, Tagesbudget 14 € |
+| 20.09. abends | 10 breite Keywords ergänzt (gespeichert mit 1,12 €), Standardgebot 1,80 €, Tagesbudget 14 €, Enddatum 24.09. |
+| 22.09. | Umstellung auf Dauerbetrieb: Enddatum entfernt, Tagesbudget 10 €, Anzeigenzeitplaner Do–So 16–24 Uhr (lokale Zeit der Nutzer), justwatch/netflix/disney plus pausiert, Gebot „tv" 1,50 € |
 
 ### Ergebnisse
 
