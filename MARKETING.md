@@ -70,6 +70,31 @@ Je Keyword (nur mit Impressions):
 | filme swipen | 5 | 1 | 1 | 0,54 € | 20 % |
 | streaming app | 6 | 0 | 0 | 0 € | 0 % |
 
+Stand 22.09.2026 (kumuliert):
+
+| Ausgaben | Impressions | Taps | Installationen | Tap-Rate | Conversion | CPT | CPA |
+|---|---|---|---|---|---|---|---|
+| 40,71 € | 4.310 | 57 | 9 | 1,32 % | 15,8 % | 0,71 € | 4,52 € |
+
+| Keyword | Impressions | Taps | Installs | Ausgaben | CPA |
+|---|---|---|---|---|---|
+| justwatch | 2.498 | 18 | 3 | 13,07 € | 4,36 € |
+| streaming guide | 346 | 10 | 1 | 5,92 € | 5,92 € |
+| serien app | 217 | 5 | 1 | 4,43 € | 4,43 € |
+| netflix | 347 | 5 | 0 | 4,10 € | – |
+| streaming | 95 | 3 | 1 | 3,03 € | 3,03 € |
+| tv | 214 | 4 | 2 | 2,96 € | 1,48 € |
+| film finden | 44 | 4 | 0 | 2,28 € | – |
+| letterboxd | 117 | 3 | 0 | 1,69 € | – |
+| film app | 141 | 2 | 0 | 1,41 € | – |
+| disney plus | 166 | 1 | 0 | 0,66 € | – |
+| watchlist | 13 | 1 | 0 | 0,63 € | – |
+| filme swipen | 6 | 1 | 1 | 0,54 € | 0,54 € |
+
+Die breiten Keywords greifen seit 21.09. auch mit 1,12 €. Beste Kandidaten für den Dauerbetrieb: tv, streaming,
+filme swipen, serien app, streaming guide. Streichen: netflix (347 Impressions, 0 Installs), justwatch
+(frisst ein Drittel des Budgets bei 0,7 % Tap-Rate), disney plus. Restguthaben etwa 44 €.
+
 Die am 20.09. ergänzten breiten Keywords (netflix, amazon prime, tv, kino, …) stehen mit 1,12 € statt
 1,80 € im Konto und hatten noch 0 Impressions. Auffällig: Tap-Rate insgesamt nur 1,1 % (Erwartung 5 bis 8 %),
 Conversion 16 % (Erwartung 40 bis 50 %) — der Store-Eintrag (Icon, Untertitel, erste Screenshots) überzeugt
