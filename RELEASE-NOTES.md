@@ -1,5 +1,47 @@
 # WatchTwin — App Store Release Notes
 
+## Offen für das nächste Android-Release: R8-Codeoptimierung (vorbereitet 2026-09-21)
+
+Play Console meldet für 1.4.2 (versionCode 9) unter „Unerwünschtes Verhalten / Arbeitsspeichernutzung":
+„Die DEX-Codeoptimierung liegt unter unserem Grenzwert — Verschleierung (2 %)", zu beheben bis **Februar 2027**.
+
+Konfiguration ist im Repo vorbereitet (Branch `feat/android-r8-minify`), **versionCode bleibt 9** —
+die Änderung geht erst mit dem nächsten Android-Release (versionCode 10) in den Store:
+
+- `android/app/build.gradle` (release): `minifyEnabled true`, `shrinkResources true`,
+  `proguard-android-optimize.txt` + `proguard-rules.pro`.
+- `android/app/proguard-rules.pro`: Crashlytics-Attribute (`SourceFile,LineNumberTable`),
+  Capacitor-Vorlage (Plugin-Subklassen, `@CapacitorPlugin`/`@PluginMethod`, `@JavascriptInterface`),
+  `-dontwarn com.facebook.**` (Firebase-Auth-Plugin referenziert das Facebook-SDK nur `compileOnly`,
+  ohne die Regel bricht R8 mit „Missing class com.facebook.*" ab).
+- Consumer-Rules der Bibliotheken kommen automatisch mit — geprüft in
+  `android/app/build/outputs/mapping/release/configuration.txt`: `@capacitor/android`,
+  `play-services-ads` 25.4.0, `firebase-auth` 24.0.1, RevenueCat `purchases` 10.21.1 +
+  `purchases-hybrid-common` 19.0.0, `billing` 8.3.0, kotlinx-serialization/-coroutines.
+  Die Capacitor-Plugins selbst (AdMob, Firebase-Auth/-Crashlytics, RevenueCat) liefern **keine**
+  eigenen Consumer-Rules; sie sind über die Capacitor-Regel `-keep class * extends com.getcapacitor.Plugin` abgedeckt.
+- `scripts/patch-admob-proguard.cjs` bleibt unverändert nötig (AGP-9-Fix im Plugin-Gradle).
+
+Verifiziert am 21.09. mit dem Release-APK (`assembleRelease`, identischer R8-Output wie das AAB)
+auf Pixel_7 / Android 16 (API 36): Onboarding → Swipe-Deck inkl. Trending-Leiste (TMDB),
+Login-Seite + nativer Google-Sign-In-Flow (GMS-Kontoauswahl öffnet), AdMob-Interstitial nach
+15 Swipes (Testanzeige, `AdActivity`), Profil/Premium-Bereich (RevenueCat konfiguriert, Offerings
+abgefragt), Notification-Permission-Dialog. Logcat: keine `ClassNotFound`/`NoSuchMethod`/
+`NoClassDefFound`, kein Crash. AAB 11,9 MB, APK 7,8 MB.
+**Nicht getestet:** Login mit Zugangsdaten, Apple-Login, Kauf/„Käufe wiederherstellen"
+(Emulator ohne Play-Billing) → beim Release mit Testkonto auf echtem Gerät prüfen.
+
+Hinweise für das Release:
+- Das Crashlytics-Gradle-Plugin lädt `mapping.txt` jetzt automatisch beim `bundleRelease` hoch
+  (`uploadCrashlyticsMappingFileRelease`) — Build braucht Netz + `google-services.json`.
+  Ins AAB wird die Mapping-Datei ebenfalls eingebettet (Play deobfuskiert ANRs/Crashes selbst).
+- Nach dem Upload von versionCode 10: Play-Console-Hinweis „Arbeitsspeichernutzung" und
+  Crashlytics-Stacktraces (lesbar?) kontrollieren.
+- Kommt ein neues natives Plugin dazu: Release-Build durchklicken; bei R8-Abbruch die
+  Vorschläge aus `android/app/build/outputs/mapping/release/missing_rules.txt` übernehmen.
+
+---
+
 ## v1.4.3 (iOS only, Build 34) — 2026-09-18
 
 Status: 18.09. eingereicht (Build 34, automatische Freigabe), beschleunigte Prüfung beantragt.
@@ -189,6 +231,10 @@ Notes für Reviewer:
 
 ## Vor jedem Release prüfen
 
+- [ ] Android: `versionCode` erhöht, `appendUserAgent` in `capacitor.config.ts` aktualisiert
+- [ ] Android: Release-Build läuft mit R8 (`minifyEnabled true`) — `./gradlew bundleRelease` ohne
+      R8-Fehler; Release-APK im Emulator durchklicken (Start, Deck, Login, Ad, Premium) und Logcat
+      auf `ClassNotFound`/`NoSuchMethod` prüfen; neue native Plugins ggf. in `proguard-rules.pro` ergänzen
 - [ ] Version (`MARKETING_VERSION`) in `ios/App/App.xcodeproj/project.pbxproj`
 - [ ] Build-Nummer (`CURRENT_PROJECT_VERSION`) erhöht
 - [ ] `npm run build` läuft fehlerfrei
