@@ -2,7 +2,12 @@
 
 ## v1.4.3 (Android versionCode 10) — 2026-09-24
 
-Status: AAB gebaut, Upload in die Play Console (Produktion) steht aus.
+Status: 24.09. in Google Play (Produktion) eingereicht, Release-Name „1.4.3 (10)", Prüfung ausstehend.
+Hochgeladenes AAB + `mapping.txt` + R8-`configuration.txt` archiviert unter
+`~/Documents/watchtwin-releases/android/1.4.3-vc10/` (nicht im Repo; SHA-256 in der README dort).
+
+Nach Freigabe prüfen: Play-Console-Hinweis „DEX-Codeoptimierung" verschwunden?
+Crashlytics-Stacktraces für 1.4.3 (10) lesbar? Kauf + „Käufe wiederherstellen" auf echtem Gerät.
 
 **Wartungs-Release Android:** R8-Codeoptimierung und Resource-Shrinking aktiviert (Details im
 Abschnitt unten). Behebt den Play-Console-Hinweis „DEX-Codeoptimierung unter Grenzwert —
