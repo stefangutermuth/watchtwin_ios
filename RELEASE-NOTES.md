@@ -1,5 +1,13 @@
 # WatchTwin — App Store Release Notes
 
+## Offen für v1.4.4
+
+- Profil: Filter „Sprache" heißt jetzt „Originalsprache", Hilfetext erklärt, dass ohne Auswahl alles
+  gezeigt wird, was bei den Anbietern läuft (meist synchronisiert). Hintergrund: Nutzer erwarteten einen
+  Filter „auf Deutsch verfügbar" — den gibt TMDB nicht her (keine Tonspur-Daten), der Filter war schon
+  immer `with_original_language`. (24.09.2026)
+- Store-Metadaten mitnehmen: Keywords/Untertitel-Vorschlag aus MARKETING.md.
+
 ## v1.4.3 (iOS only, Build 34) — 2026-09-18
 
 Status: 18.09. eingereicht (Build 34, automatische Freigabe), beschleunigte Prüfung beantragt.
