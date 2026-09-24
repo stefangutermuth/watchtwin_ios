@@ -1,12 +1,24 @@
 # WatchTwin — App Store Release Notes
 
-## Offen für das nächste Android-Release: R8-Codeoptimierung (vorbereitet 2026-09-21)
+## v1.4.3 (Android versionCode 10) — 2026-09-24
+
+Status: AAB gebaut, Upload in die Play Console (Produktion) steht aus.
+
+**Wartungs-Release Android:** R8-Codeoptimierung und Resource-Shrinking aktiviert (Details im
+Abschnitt unten). Behebt den Play-Console-Hinweis „DEX-Codeoptimierung unter Grenzwert —
+Verschleierung 2 %" aus 1.4.2. Für Nutzer keine sichtbaren Änderungen. Version damit wieder
+gleichauf mit iOS 1.4.3.
+
+Store-Text („Was ist neu"): *Stabilitäts- und Leistungsverbesserungen.*
+
+---
+
+## R8-Codeoptimierung (vorbereitet 2026-09-21, ausgeliefert mit 1.4.3 / versionCode 10)
 
 Play Console meldet für 1.4.2 (versionCode 9) unter „Unerwünschtes Verhalten / Arbeitsspeichernutzung":
 „Die DEX-Codeoptimierung liegt unter unserem Grenzwert — Verschleierung (2 %)", zu beheben bis **Februar 2027**.
 
-Konfiguration ist im Repo vorbereitet (Branch `feat/android-r8-minify`), **versionCode bleibt 9** —
-die Änderung geht erst mit dem nächsten Android-Release (versionCode 10) in den Store:
+Konfiguration aus Branch `feat/android-r8-minify` (PR #10), ausgeliefert mit versionCode 10:
 
 - `android/app/build.gradle` (release): `minifyEnabled true`, `shrinkResources true`,
   `proguard-android-optimize.txt` + `proguard-rules.pro`.
