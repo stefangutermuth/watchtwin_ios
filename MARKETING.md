@@ -26,8 +26,8 @@ Kampagnen-ID `2144710249`, Anzeigengruppe „DE Suche - Film & Serie finden" (`2
 |---|---|
 | Platzierung | Suchergebnisse im App Store |
 | Land | Deutschland, iPhone, alle Nutzer |
-| Laufzeit | 19.09.2026 bis 22.09.2026 (Verlängerung auf 24.09. optional) |
-| Tagesbudget | 14 € (ursprünglich 15 €) |
+| Laufzeit | seit 19.09.2026, kein Enddatum; Anzeigenzeitplaner Do–So 16–24 Uhr (seit 22.09.) |
+| Tagesbudget | 10 € an aktiven Tagen (ursprünglich 15 €, dann 14 €) |
 | Gebotsstrategie | manuell, Standard-CPT 1,80 € (ursprünglich 1,12 €) |
 | Search Match | an |
 | Anzeige | Standard-Produktseite |
@@ -47,7 +47,8 @@ Kampagnen-ID `2144710249`, Anzeigengruppe „DE Suche - Film & Serie finden" (`2
 |---|---|
 | 19.09. 20:05 | Kampagne, Anzeigengruppe und 22 Keywords angelegt; Status „Prüfung der App ausstehend" |
 | 20.09. | Status „Laufen", aber 0 Impressions, 0 Ausgaben. Ursache: Keywords ohne Suchvolumen im App Store, Gebot zu niedrig |
-| 20.09. abends | 10 breite Keywords mit 1,80 € ergänzt, Standardgebot 1,80 €, Tagesbudget 14 € |
+| 20.09. abends | 10 breite Keywords ergänzt (gespeichert mit 1,12 €), Standardgebot 1,80 €, Tagesbudget 14 €, Enddatum 24.09. |
+| 22.09. | Umstellung auf Dauerbetrieb: Enddatum entfernt, Tagesbudget 10 €, Anzeigenzeitplaner Do–So 16–24 Uhr (lokale Zeit der Nutzer), justwatch/netflix/disney plus pausiert, Gebot „tv" 1,50 € |
 
 ### Ergebnisse
 
@@ -70,6 +71,31 @@ Je Keyword (nur mit Impressions):
 | filme swipen | 5 | 1 | 1 | 0,54 € | 20 % |
 | streaming app | 6 | 0 | 0 | 0 € | 0 % |
 
+Stand 22.09.2026 (kumuliert):
+
+| Ausgaben | Impressions | Taps | Installationen | Tap-Rate | Conversion | CPT | CPA |
+|---|---|---|---|---|---|---|---|
+| 40,71 € | 4.310 | 57 | 9 | 1,32 % | 15,8 % | 0,71 € | 4,52 € |
+
+| Keyword | Impressions | Taps | Installs | Ausgaben | CPA |
+|---|---|---|---|---|---|
+| justwatch | 2.498 | 18 | 3 | 13,07 € | 4,36 € |
+| streaming guide | 346 | 10 | 1 | 5,92 € | 5,92 € |
+| serien app | 217 | 5 | 1 | 4,43 € | 4,43 € |
+| netflix | 347 | 5 | 0 | 4,10 € | – |
+| streaming | 95 | 3 | 1 | 3,03 € | 3,03 € |
+| tv | 214 | 4 | 2 | 2,96 € | 1,48 € |
+| film finden | 44 | 4 | 0 | 2,28 € | – |
+| letterboxd | 117 | 3 | 0 | 1,69 € | – |
+| film app | 141 | 2 | 0 | 1,41 € | – |
+| disney plus | 166 | 1 | 0 | 0,66 € | – |
+| watchlist | 13 | 1 | 0 | 0,63 € | – |
+| filme swipen | 6 | 1 | 1 | 0,54 € | 0,54 € |
+
+Die breiten Keywords greifen seit 21.09. auch mit 1,12 €. Beste Kandidaten für den Dauerbetrieb: tv, streaming,
+filme swipen, serien app, streaming guide. Streichen: netflix (347 Impressions, 0 Installs), justwatch
+(frisst ein Drittel des Budgets bei 0,7 % Tap-Rate), disney plus. Restguthaben etwa 44 €.
+
 Die am 20.09. ergänzten breiten Keywords (netflix, amazon prime, tv, kino, …) stehen mit 1,12 € statt
 1,80 € im Konto und hatten noch 0 Impressions. Auffällig: Tap-Rate insgesamt nur 1,1 % (Erwartung 5 bis 8 %),
 Conversion 16 % (Erwartung 40 bis 50 %) — der Store-Eintrag (Icon, Untertitel, erste Screenshots) überzeugt
@@ -86,6 +112,19 @@ Kosten pro Installation 2 bis 3,50 €. Bleibt es bei 0 Impressions, Konto prüf
 3. Restguthaben (rund 40 €) mit 10 €/Tag aufbrauchen, danach mit echten Zahlen über eigenes Budget entscheiden
 4. Apple Ads als Hebel für Nutzerzahlen und Bewertungen sehen, nicht als Umsatzquelle
    (Premium ist Einmalkauf, bei 2 bis 3 % Premium-Quote rechnet sich 3 € CPA nicht)
+
+## Länderverfügbarkeit (Stand 21.09.2026)
+
+| Plattform | Verfügbar in | Downloads letzte 30 Tage |
+|---|---|---|
+| iOS | 175 Länder (weltweit) | 9 erstmalige Downloads, alle aus Deutschland (8 davon am 20.09. über Apple Ads) |
+| Android | Deutschland, Österreich, Schweiz | 3 Installationen von 1.4.2 |
+
+Fazit: Die iOS-App ist bereits weltweit freigeschaltet, bringt aber außerhalb Deutschlands null Downloads.
+Öffnen allein bringt nichts; die App ist technisch fest auf Deutschland eingestellt (`LANGUAGE = 'de-DE'`,
+`WATCH_REGION = 'DE'` in `src/services/tmdb.ts`, deutsche Anbieterliste in `src/data/providers.ts`, keine
+i18n-Schicht, alle UI-Texte hart auf Deutsch). Internationalisierung wäre ein eigenes Projekt (2 bis 3 Tage
+für Englisch + Region aus Gerät + Anbieter pro Land) und erst sinnvoll, wenn die Produktseite in DE konvertiert.
 
 ## ASO — App Store Eintrag (iOS)
 
