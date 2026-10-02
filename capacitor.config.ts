@@ -20,7 +20,7 @@ const config: CapacitorConfig = {
     appendUserAgent: 'WatchTwin/1.4.3',
   },
   android: {
-    appendUserAgent: 'WatchTwin/1.4.2',
+    appendUserAgent: 'WatchTwin/1.4.3',
   },
   plugins: {
     AdMob: {
