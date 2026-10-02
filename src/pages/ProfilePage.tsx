@@ -386,7 +386,7 @@ export function ProfilePage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-wt-pink/15">
               <FontAwesomeIcon icon={faLanguage} className="text-wt-pink" />
             </div>
-            <h2 className="text-base font-semibold text-white">Sprache</h2>
+            <h2 className="text-base font-semibold text-white">Originalsprache</h2>
             {selectedLanguages.length > 0 && (
               <span className="rounded-full bg-wt-pink/20 px-2 py-0.5 text-[10px] font-bold text-wt-pink">
                 {selectedLanguages.length}
@@ -403,7 +403,8 @@ export function ProfilePage() {
           )}
         </div>
         <p className="mb-3 text-xs text-gray-400">
-          Nur Titel in diesen Originalsprachen anzeigen. Ohne Auswahl alle.
+          Nur Originalproduktionen in diesen Sprachen (z. B. K-Dramen oder deutsche Filme). Ohne
+          Auswahl alles, was bei deinen Anbietern läuft – in der Regel deutsch synchronisiert.
         </p>
         <div className="flex flex-wrap gap-2">
           {AVAILABLE_LANGUAGES.map((lang) => {

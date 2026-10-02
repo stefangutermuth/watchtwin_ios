@@ -1,5 +1,13 @@
 # WatchTwin — App Store Release Notes
 
+## Offen für v1.4.4
+
+- Profil: Filter „Sprache" heißt jetzt „Originalsprache", Hilfetext erklärt, dass ohne Auswahl alles
+  gezeigt wird, was bei den Anbietern läuft (meist synchronisiert). Hintergrund: Nutzer erwarteten einen
+  Filter „auf Deutsch verfügbar" — den gibt TMDB nicht her (keine Tonspur-Daten), der Filter war schon
+  immer `with_original_language`. (24.09.2026)
+- Store-Metadaten mitnehmen: Keywords/Untertitel-Vorschlag aus MARKETING.md.
+
 ## Offen für das nächste Android-Release: R8-Codeoptimierung (vorbereitet 2026-09-21)
 
 Play Console meldet für 1.4.2 (versionCode 9) unter „Unerwünschtes Verhalten / Arbeitsspeichernutzung":
