@@ -8,8 +8,9 @@
   immer `with_original_language`. (24.09.2026)
 - Store-Metadaten mitnehmen: Keywords/Untertitel-Vorschlag aus MARKETING.md.
 - **Google-Login Android:** 06.10.2026 SHA-1 von Play-App-Signing-Key und Upload-Key in Firebase nachgetragen
-  (vorher nur Debug-Key → Google-Sign-In in Store-Builds defekt). Vor 1.4.4 im internen Test prüfen, dass
-  „Mit Google anmelden" auf einem Play-signierten Build durchläuft; optional `google-services.json` neu laden.
+  (vorher nur Debug-Key → Google-Sign-In in Store-Builds defekt). Geprüft am 06.10.: Release-APK (Upload-Key,
+  R8) im Pixel_7-Emulator → „Mit Google anmelden" öffnet den Google-Kontodialog statt mit Fehler 10 abzubrechen.
+  Store-Build (App-Signing-Key) ist analog registriert. Optional `google-services.json` neu laden.
   Google-OAuth-Client des Debug-Keys wird ab 22.10.2026 als ungenutzt gelöscht — unkritisch.
 
 ## v1.4.3 (Android versionCode 10) — 2026-09-24
